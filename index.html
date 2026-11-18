@@ -185,7 +185,7 @@ rain();
   
 
   
-  <!-- AESTHETIC ALU / GLOW EFFECT -->
+ <!-- AESTHETIC ALU / GLOW EFFECT -->
 <div style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden;">
   <div style="position:absolute; width:450px; height:450px; background:radial-gradient(circle, rgba(128,87,245,0.45), transparent 70%); filter:blur(60px); top:-100px; left:-100px; animation: glowMove1 9s ease-in-out infinite alternate;"></div>
   <div style="position:absolute; width:400px; height:400px; background:radial-gradient(circle, rgba(0,200,255,0.35), transparent 70%); filter:blur(60px); bottom:-100px; right:-50px; animation: glowMove2 11s ease-in-out infinite alternate;"></div>
@@ -193,37 +193,22 @@ rain();
 </div>
 
 <style>
-@keyframes glowMove1{
-  from{ transform: translate(0,0) scale(1); }
-  to{ transform: translate(80px, 60px) scale(1.2); }
-}
-@keyframes glowMove2{
-  from{ transform: translate(0,0) scale(1.1); }
-  to{ transform: translate(-90px, -70px) scale(0.9); }
-}
+@keyframes glowMove1{ from{ transform: translate(0,0) scale(1); } to{ transform: translate(80px, 60px) scale(1.2); } }
+@keyframes glowMove2{ from{ transform: translate(0,0) scale(1.1); } to{ transform: translate(-90px, -70px) scale(0.9); } }
 </style>
- 
-  
 
-  <button class="admin-btn" id="adminBtn">🔒</button>
-  
-(async()=>{try{await openDatabase();await refresh();}catch(error){showNotice("Storage error.","error");}})();
-  
- // ADMIN ONLY - oya witharak
+<button class="admin-btn" id="adminBtn">🔒</button>
+
+<script>
 const ADMIN_PASSWORD="tharu123";
 document.getElementById("adminBtn").addEventListener("click",()=>{
   const p=prompt("Admin Password:");
   if(p===ADMIN_PASSWORD){
     document.getElementById("uploadBtn").classList.add("show");
-    alert("Admin unlocked! Upload button eka dan pennawa.");
+    alert("Admin unlocked!");
   } else if(p!==null){ alert("Wrong password!"); }
-}); 
-  
-  
-  
-  
-  
-  
-  
+});
+</script>
+
 </body>
-</html>
+  </html>
