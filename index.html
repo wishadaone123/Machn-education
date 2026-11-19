@@ -69,32 +69,18 @@ button,input{font:inherit}button{cursor:pointer}
     </div>
     <div id="notice" class="notice" role="status"></div>
     <div class="file-list" id="fileList"><div class="empty">Opening your device storage…</div></div>
-
-    
-
-
- <!-- Contact Me - FIXED LOGO -->
-<div style="width:calc(100% + 56px); margin-left:-28px; margin-right:-28px; margin-top:25px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.3); border-left:0; border-right:0; padding:28px; color:white; box-sizing:border-box;">
+ <div style="width:calc(100% + 56px); margin-left:-28px; margin-right:-28px; margin-top:25px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.3); border-left:0; border-right:0; padding:28px; color:white; box-sizing:border-box;">
   <h3 style="margin:0; font-size:24px;">Contact Me</h3>
-
   <div style="display:flex; gap:18px; margin-top:16px; align-items:center;">
-    
-    <!-- WhatsApp - RAUMATA -->
     <a href="https://wa.me/94776399895?text=Hyy%20Tharusha%20I%20came%20from%20your%20website" target="_blank" style="width:60px; height:60px; background:#25D366; border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none;">
       <svg width="34" height="34" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     </a>
-
-    <!-- Facebook - RAUMATA -->
     <a href="https://www.facebook.com/share/1A7HmEEpS7/" target="_blank" style="width:60px; height:60px; background:#1877F2; border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none;">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
     </a>
-
   </div>
   <p style="margin:16px 0 0; color:#aab4cc; font-size:14px;">Thank you for using! 🤍</p>
 </div>
-    
-    
-
     <div class="footer">© 2026 Machn Education</div>
   </main>
 </div>
@@ -121,86 +107,34 @@ function readableError(error){if(error && (error.name==="QuotaExceededError"))re
 function sizeText(bytes){if(bytes<1024)return bytes+" B";if(bytes<1048576)return (bytes/1024).toFixed(1)+" KB";return (bytes/1048576).toFixed(2)+" MB";}
 async function loadCloudDocs(){try{const r=await fetch('documents.json');if(!r.ok)return[];const j=await r.json();return j.map((d,i)=>({id:'cloud-'+i,name:d.name,category:d.category,size:0,date:(d.subject||'')+' • Grade '+(d.grade||'')+' • '+(d.year||''),savedAt:Date.now(),isCloud:true,cloudUrl:d.url}));}catch(e){return[];}}
 async function refresh(){const local=await getFiles();const cloud=await loadCloudDocs();documents=[...cloud,...local];render();}
-function render(){const list=$("fileList"),q=$("search").value.trim().toLowerCase();$("total").textContent=documents.length;["Subject","Short Note","Papers"].forEach(cat=>{$("count-"+cat).textContent=documents.filter(d=>d.category===cat).length+" documents";});const filtered=documents.filter(d=>d.category===currentCategory && d.name.toLowerCase().includes(q)).sort((a,b)=>b.savedAt-a.savedAt);list.replaceChildren();if(!filtered.length){const empty=document.createElement("div");empty.className="empty";empty.textContent=q?"No matching documents.":"📂 No documents in this category yet. Use Upload Documents to add files.";list.appendChild(empty);return;}filtered.forEach(d=>{const row=document.createElement("div");row.className="file";const ext=(d.name.split(".").pop()||"").toLowerCase();const icon=document.createElement("div");icon.className="file-icon";icon.textContent=iconMap[ext]||"📁";const info=document.createElement("div");info.className="file-info";const name=document.createElement("strong");name.textContent=d.name;const meta=document.createElement("small");meta.textContent=sizeText(d.size)+" • "+d.date;info.append(name,meta);const actions=document.createElement("div");actions.className="actions";const down=document.createElement("button");down.className="action";down.textContent="⬇ Download";down.addEventListener("click",()=>{const url=URL.createObjectURL(d.blob);const a=document.createElement("a");a.href=url;a.download=d.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);});const del=document.createElement("button");del.className="action delete";del.textContent="✕ Delete";del.addEventListener("click",async()=>{if(!confirm("Delete "+d.name+"?"))return;try{await removeFile(d.id);await refresh();showNotice("Deleted.","success");}catch(e){showNotice(readableError(e),"error");}});actions.append(down,del);row.append(icon,info,actions);list.appendChild(row);});}
+function render(){const list=$("fileList"),q=$("search").value.trim().toLowerCase();$("total").textContent=documents.length;["Subject","Short Note","Papers"].forEach(cat=>{$("count-"+cat).textContent=documents.filter(d=>d.category===cat).length+" documents";});const filtered=documents.filter(d=>d.category===currentCategory && d.name.toLowerCase().includes(q)).sort((a,b)=>b.savedAt-a.savedAt);list.replaceChildren();if(!filtered.length){const empty=document.createElement("div");empty.className="empty";empty.textContent=q?"No matching documents.":"📂 No documents in this category yet. Use Upload Documents to add files.";list.appendChild(empty);return;}filtered.forEach(d=>{const row=document.createElement("div");row.className="file";const ext=(d.name.split(".").pop()||"").toLowerCase();const icon=document.createElement("div");icon.className="file-icon";icon.textContent=iconMap[ext]||"📁";const info=document.createElement("div");info.className="file-info";const name=document.createElement("strong");name.textContent=d.name;const meta=document.createElement("small");meta.textContent=sizeText(d.size)+" • "+d.date;info.append(name,meta);const actions=document.createElement("div");actions.className="actions";const down=document.createElement("button");down.className="action";down.textContent="⬇ Download";down.addEventListener("click",()=>{if(d.isCloud&&d.cloudUrl){window.open(d.cloudUrl,'_blank');return;}const url=URL.createObjectURL(d.blob);const a=document.createElement("a");a.href=url;a.download=d.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);});const del=document.createElement("button");del.className="action delete";del.textContent="✕ Delete";del.addEventListener("click",async()=>{if(d.isCloud){showNotice("Cloud papers can only be deleted from documents.json in GitHub.","info");return;}if(!confirm("Delete "+d.name+"?"))return;try{await removeFile(d.id);await refresh();showNotice("Deleted.","success");}catch(e){showNotice(readableError(e),"error");}});actions.append(down,del);row.append(icon,info,actions);list.appendChild(row);});}
 function chooseCategory(cat){currentCategory=cat;document.querySelectorAll("[data-cat]").forEach(el=>{el.classList.toggle("active",el.dataset.cat===cat);if(el.classList.contains("category"))el.classList.toggle("selected",el.dataset.cat===cat);});const symbols={"Subject":"📘","Short Note":"📝","Papers":"📄"};$("categoryTitle").textContent=symbols[cat]+" "+cat+" Documents";$("search").value="";hideNotice();render();}
 document.querySelectorAll("[data-cat]").forEach(el=>el.addEventListener("click",()=>chooseCategory(el.dataset.cat)));
 $("search").addEventListener("input",render);
 $("uploadBtn").addEventListener("click",()=>$("fileInput").click());
 $("fileInput").addEventListener("change",async event=>{const files=Array.from(event.target.files||[]);event.target.value="";if(!files.length)return;$("uploadBtn").disabled=true;let saved=0,failed=[];for(const file of files){if(file.size>MAX_FILE_SIZE){failed.push(file.name+" (over 100 MB)");continue;}try{await addFile({name:file.name,size:file.size,type:file.type||"application/octet-stream",date:new Date().toLocaleString(),savedAt:Date.now(),category:currentCategory,blob:file});saved++;}catch(error){failed.push(file.name);}} $("uploadBtn").disabled=false;try{await refresh();}catch(error){showNotice(readableError(error),"error");return;}if(failed.length){showNotice("Could not save: "+failed.join("; "),"error");}else{showNotice(saved+" document(s) saved.","success");}});
 (async()=>{try{await openDatabase();await refresh();}catch(error){showNotice("Storage error.","error");}})();
-  async function refresh
 </script>
-  
-  
-  <!-- WASSA EFFECT -->
 <canvas id="rainCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:999;"></canvas>
-
 <script>
 const canvas = document.getElementById('rainCanvas');
 const ctx = canvas.getContext('2d');
 let drops = [];
-
-function resize(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resize);
-resize();
-
-for(let i=0; i<120; i++){
-  drops.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    len: 15 + Math.random() * 20,
-    speed: 8 + Math.random() * 10,
-    opacity: 0.2 + Math.random() * 0.4
-  });
-}
-
-function rain(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.lineWidth = 1.5;
-  ctx.lineCap = 'round';
-  drops.forEach(d => {
-    ctx.strokeStyle = `rgba(174,194,224,${d.opacity})`;
-    ctx.beginPath();
-    ctx.moveTo(d.x, d.y);
-    ctx.lineTo(d.x - 3, d.y + d.len);
-    ctx.stroke();
-    d.y += d.speed;
-    d.x -= 1;
-    if(d.y > canvas.height){
-      d.y = -20;
-      d.x = Math.random() * canvas.width;
-    }
-  });
-  requestAnimationFrame(rain);
-}
-rain();
+function resize(){canvas.width = window.innerWidth;canvas.height = window.innerHeight;}
+window.addEventListener('resize', resize);resize();
+for(let i=0; i<120; i++){drops.push({x: Math.random() * canvas.width,y: Math.random() * canvas.height,len: 15 + Math.random() * 20,speed: 8 + Math.random() * 10,opacity: 0.2 + Math.random() * 0.4});}
+function rain(){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.lineWidth = 1.5;ctx.lineCap = 'round';drops.forEach(d => {ctx.strokeStyle = `rgba(174,194,224,${d.opacity})`;ctx.beginPath();ctx.moveTo(d.x, d.y);ctx.lineTo(d.x - 3, d.y + d.len);ctx.stroke();d.y += d.speed;d.x -= 1;if(d.y > canvas.height){d.y = -20;d.x = Math.random() * canvas.width;}});requestAnimationFrame(rain);}rain();
 </script>
-  
-  
-  
- 
-  
-  
-  
-
-  
- <!-- AESTHETIC ALU / GLOW EFFECT -->
 <div style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden;">
   <div style="position:absolute; width:450px; height:450px; background:radial-gradient(circle, rgba(128,87,245,0.45), transparent 70%); filter:blur(60px); top:-100px; left:-100px; animation: glowMove1 9s ease-in-out infinite alternate;"></div>
   <div style="position:absolute; width:400px; height:400px; background:radial-gradient(circle, rgba(0,200,255,0.35), transparent 70%); filter:blur(60px); bottom:-100px; right:-50px; animation: glowMove2 11s ease-in-out infinite alternate;"></div>
   <div style="position:absolute; width:300px; height:300px; background:radial-gradient(circle, rgba(255,0,150,0.25), transparent 70%); filter:blur(60px); top:40%; left:50%; animation: glowMove1 13s ease-in-out infinite alternate;"></div>
 </div>
-
 <style>
 @keyframes glowMove1{ from{ transform: translate(0,0) scale(1); } to{ transform: translate(80px, 60px) scale(1.2); } }
 @keyframes glowMove2{ from{ transform: translate(0,0) scale(1.1); } to{ transform: translate(-90px, -70px) scale(0.9); } }
 </style>
-
 <button class="admin-btn" id="adminBtn">🔒</button>
-
 <script>
 const ADMIN_PASSWORD="tharu123";
 document.getElementById("adminBtn").addEventListener("click",()=>{
@@ -211,6 +145,5 @@ document.getElementById("adminBtn").addEventListener("click",()=>{
   } else if(p!==null){ alert("Wrong password!"); }
 });
 </script>
-
 </body>
-  </html>
+                                                                                                                                                                                                                                                                                                                                                                               </html>
