@@ -94,7 +94,7 @@ button,input{font:inherit}button{cursor:pointer}
 const GITHUB_USER="wishadaone123";
 const GITHUB_REPO="Machn-education";
 const BRANCH="main";
-let documents=[], currentCategory="Subject";
+let documents=[], currentCategory="Subject", isAdmin=false;
 const iconMap={pdf:"📕",doc:"📘",docx:"📘",ppt:"📙",pptx:"📙",jpg:"🖼️",jpeg:"🖼️",png:"🖼️"};
 const $=id=>document.getElementById(id);
 function showNotice(m,t="info"){const el=$("notice");el.textContent=m;el.className="notice show "+t;}
@@ -115,18 +115,13 @@ function guessCategory(name,path){
 }
 function getToken(){return localStorage.getItem("gh_token")||"";}
 function askToken(){
-  let t=prompt("GitHub Token eka danna (ghp_...). Eka parai ahanna:");
+  let t=prompt("GitHub Token eka danna (ghp_...):");
   if(t){t=t.trim();localStorage.setItem("gh_token",t);return t;}
   return "";
 }
-// --- LOAD ALL FILES FROM GITHUB - RECURSIVE, SO EVERY FOLDER WORKS ---
+// --- LOAD ONLY FROM GITHUB - documents.json AIN KALA, Maths magula na ---
 async function loadCloudDocs(){
   let out=[];
-  // 1. documents.json eke thiyena ewa (kalin Maths paper 1 wage)
-  try{
-    const r=await fetch('documents.json');if(r.ok){const j=await r.json();j.forEach((d,i)=>{out.push({id:'json-'+i,name:d.name,category:d.category||guessCategory(d.name,""),size:0,date:'Cloud • '+(d.subject||''),savedAt:Date.now(),cloudUrl:d.url,path:d.url});});}
-  }catch(e){}
-  // 2. GitHub repo eke thiyena HAMA file ekama - tree API eken
   try{
     const r=await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/${BRANCH}?recursive=1`);
     if(r.ok){
@@ -141,27 +136,11 @@ async function loadCloudDocs(){
         const cat=folder?folderToCategory(folder):null;
         const finalCat=cat||guessCategory(name,file.path);
         const url=`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/${encodeURIComponent(file.path).replace(/%2F/g,"/")}`;
-        if(out.some(o=>o.cloudUrl===url||o.name===name&&o.path===file.path))return;
+        if(out.some(o=>o.cloudUrl===url))return;
         out.push({id:'gh-'+file.path,name:name,category:finalCat,size:file.size||0,date:"GitHub • "+file.path,savedAt:Date.now(),cloudUrl:url,path:file.path,sha:file.sha});
       });
     }
   }catch(e){}
-  // 3. Fallback - folders walin balanawa
-  if(out.length<=1){
-    const folders=["","Papers","Subject","Short Note","Short-Note","Notes"];
-    for(const f of folders){
-      try{
-        const url=f?`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${encodeURIComponent(f)}`:`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`;
-        const r=await fetch(url);if(!r.ok)continue;const list=await r.json();if(!Array.isArray(list))continue;
-        list.forEach((file)=>{
-          if(file.type!=="file")return;
-          if(!file.name.toLowerCase().endsWith(".pdf"))return;
-          if(out.some(o=>o.name===file.name))return;
-          out.push({id:'gh2-'+file.name,name:file.name,category:f?folderToCategory(f)||guessCategory(file.name,f):guessCategory(file.name,""),size:file.size||0,date:"GitHub • "+file.name,savedAt:Date.now(),cloudUrl:file.download_url,path:file.name});
-        });
-      }catch(e){}
-    }
-  }
   return out;
 }
 async function refresh(){documents=await loadCloudDocs();render();}
@@ -171,7 +150,7 @@ function render(){
   ["Subject","Short Note","Papers"].forEach(cat=>{$("count-"+cat).textContent=documents.filter(d=>d.category===cat).length+" documents";});
   const filtered=documents.filter(d=>d.category===currentCategory && d.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
   list.replaceChildren();
-  if(!filtered.length){const e=document.createElement("div");e.className="empty";e.textContent=q?"No matching documents.":"📂 No documents in this category yet. Upload karanna.";list.appendChild(e);return;}
+  if(!filtered.length){const e=document.createElement("div");e.className="empty";e.textContent=q?"No matching documents.":"📂 No documents in this category yet.";list.appendChild(e);return;}
   filtered.forEach(d=>{
     const row=document.createElement("div");row.className="file";
     const ext=(d.name.split(".").pop()||"").toLowerCase();
@@ -186,8 +165,8 @@ function render(){
     const down=document.createElement("button");down.className="action";down.textContent="⬇ Download";
     down.addEventListener("click",()=>{const a=document.createElement("a");a.href=d.cloudUrl;a.download=d.name;a.target="_blank";document.body.appendChild(a);a.click();a.remove();});
     actions.append(view,down);
-    // Delete button eka admin ta witharak pennanawa - admin unlock karama
-    if(document.getElementById("uploadBtn").classList.contains("show")){
+    // DELETE - OYATA WITHARAI! isAdmin true unamath witharai pennanne
+    if(isAdmin){
       const del=document.createElement("button");del.className="action delete";del.textContent="✕ Delete";
       del.addEventListener("click",async()=>{if(!confirm("Delete "+d.name+"?"))return;await deleteFromGitHub(d);});
       actions.append(del);
@@ -204,7 +183,6 @@ function chooseCategory(cat){
 document.querySelectorAll("[data-cat]").forEach(el=>el.addEventListener("click",()=>chooseCategory(el.dataset.cat)));
 $("search").addEventListener("input",render);
 $("uploadBtn").addEventListener("click",()=>$("fileInput").click());
-// --- UPLOAD DIRECTLY TO GITHUB - SO EVERYONE CAN SEE ---
 function fileToBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});}
 async function uploadToGitHub(file,token){
   const folder=currentCategory;
@@ -218,7 +196,7 @@ async function uploadToGitHub(file,token){
 }
 async function deleteFromGitHub(d){
   let token=getToken();if(!token)token=askToken();if(!token)return;
-  if(!d.path){showNotice("Me file eka GitHub eken delete karanna ba. documents.json eken ain karanna.","error");return;}
+  if(!d.path){showNotice("Delete karanna ba.","error");return;}
   try{
     const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${encodeURIComponent(d.path).replace(/%2F/g,"/")}`;
     const getR=await fetch(url,{headers:{"Authorization":"token "+token}});
@@ -230,12 +208,12 @@ async function deleteFromGitHub(d){
 }
 $("fileInput").addEventListener("change",async event=>{
   const files=Array.from(event.target.files||[]);event.target.value="";if(!files.length)return;
-  let token=getToken();if(!token)token=askToken();if(!token){showNotice("Token eka nathuwa upload karanna ba. GitHub token eka ganna.","error");return;}
+  let token=getToken();if(!token)token=askToken();if(!token){showNotice("Token eka nathuwa upload karanna ba.","error");return;}
   $("uploadBtn").disabled=true;showNotice("Uploading to Cloud... Thawa tikak inna...","info");
   let ok=0,fail=[];
   for(const file of files){
     try{await uploadToGitHub(file,token);ok++;}
-    catch(e){fail.push(file.name+" - "+e.message);if(e.message.toLowerCase().includes("bad credentials")){localStorage.removeItem("gh_token");fail.push("Token eka waradi! Ayeth token eka ganna.");break;}}
+    catch(e){fail.push(file.name+" - "+e.message);if(e.message.toLowerCase().includes("bad credentials")){localStorage.removeItem("gh_token");break;}}
   }
   $("uploadBtn").disabled=false;
   if(fail.length)showNotice("Fail: "+fail.join("; "),"error");
@@ -269,10 +247,12 @@ const ADMIN_PASSWORD="tharu123";
 document.getElementById("adminBtn").addEventListener("click",()=>{
   const p=prompt("Admin Password:");
   if(p===ADMIN_PASSWORD){
+    isAdmin=true;
     document.getElementById("uploadBtn").classList.add("show");
-    alert("Admin unlocked! Dan upload karanna puluwan!");
+    alert("Admin unlocked! Dan Upload + Delete karanna puluwan!");
+    render();
   } else if(p!==null){ alert("Wrong password!"); }
 });
 </script>
 </body>
-        </html>
+  </html>
