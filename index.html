@@ -7,29 +7,21 @@
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial;background:#0f0f2a;color:#fff;padding:15px}
 .header{background:linear-gradient(90deg,#7b2ff7,#2f7bff);padding:20px;border-radius:15px}
-.card{background:#1e1e3a;padding:15px;border-radius:12px;margin:10px 0;display:flex;justify-content:space-between;align-items:center;gap:10px}
-button{background:#7b2ff7;color:#fff;border:0;padding:10px 14px;border-radius:8px;font-weight:bold;cursor:pointer}
-select,input{padding:10px;border-radius:8px;border:0;width:100%;margin:5px 0;color:#000}
+.card{background:#1e1e3a;padding:15px;border-radius:12px;margin:10px 0;display:flex;justify-content:space-between;align-items:center}
+button{background:#7b2ff7;color:#fff;border:0;padding:10px 15px;border-radius:8px;font-weight:bold}
+select,input{padding:10px;border-radius:8px;border:0;width:100%;margin:5px 0}
 #adminBox{display:none;background:#1e1e3a;padding:15px;border-radius:12px;margin-top:15px}
-a{color:#fff;text-decoration:none}
-.filter{margin:10px 0;display:flex;gap:8px;flex-wrap:wrap}
-.filter button{background:#333}
-.filter button.active{background:#7b2ff7}
+a{color:#fff}
 </style>
 </head>
 <body>
-<div class="header"><h2>Welcome To Tharu Education 👋</h2><p>All documents visible to everyone. View & Download any file.</p></div>
+<div class="header"><h2>Welcome To Tharu Education 👋</h2><p>All documents here are visible to everyone. View and download any file.</p></div>
 
-<h3 id="count">Total Documents: Loading...</h3>
-<div class="filter">
-<button class="active" onclick="setFilter('All',this)">All</button>
-<button onclick="setFilter('Papers',this)">Papers</button>
-<button onclick="setFilter('Subject',this)">Subject</button>
-<button onclick="setFilter('Short Note',this)">Short Note</button>
-</div>
+<h3 id="count">Total Documents: 0</h3>
 
 <div id="list"><p>Loading...</p></div>
 
+<!-- ADMIN ONLY - OYATA WITHARAI PENNANE -->
 <div id="adminBox">
 <h3>🔐 Admin Upload (Oya Witharai)</h3>
 <select id="cat"><option value="Subject">Subject</option><option value="Short Note">Short Note</option><option value="Papers">Papers</option></select>
@@ -40,48 +32,44 @@ a{color:#fff;text-decoration:none}
 
 <script>
 const USER="wishadaone123", REPO="Machn-education";
-let allFiles=[], currentFilter="All";
+let isAdmin = false;
 
+// 1. ANITH UNTA UPLOAD / DELETE PENNANNE NA - OYA ?admin=1 DALA AWOTH WITHARAI
 if(location.search.includes("admin=1")){
+  isAdmin = true;
   document.getElementById("adminBox").style.display="block";
   let t = localStorage.getItem("gh_token");
   if(!t){ t = prompt("Admin Token eka danna (1 parai):"); if(t) localStorage.setItem("gh_token",t); }
 }
-function setFilter(f,btn){
-  currentFilter=f;
-  document.querySelectorAll('.filter button').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); render();
-}
-function render(){
-  let list = allFiles.filter(f=> currentFilter=="All" || f.cat==currentFilter);
-  document.getElementById("count").innerText = "Total Documents: "+allFiles.length;
-  if(list.length==0){ document.getElementById("list").innerHTML="<p>📁 Me category eke file na.</p>"; return; }
-  document.getElementById("list").innerHTML = list.map(f=>{
-    let viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(f.download_url)}&embedded=true`;
-    return `<div class="card"><div><b>${f.name}</b><br><small>${f.cat}</small></div>
-    <div style="display:flex;gap:5px"><a href="${viewUrl}" target="_blank"><button>View</button></a>
-    <a href="${f.download_url}" target="_blank"><button style="background:#00b894">Download</button></a></div></div>`;
-  }).join("");
-}
+
+// 2. FIXED - Kalin files folder eka baluwe, dan oya repo eke thiyena folders 3ma balanawa
 async function load(){
   try{
-    allFiles=[];
-    // OYA REPO EKE THIYENA FOLDERS 3NMA BALANNE - files kiyala ekak na!
+    let allFiles = [];
     for(let folder of ["Papers","Subject","Short Note"]){
       const r = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(folder)}?t=${Date.now()}`);
       if(!r.ok) continue;
       const files = await r.json();
       if(Array.isArray(files)){
         files.filter(f=>f.name.toLowerCase().endsWith(".pdf")).forEach(f=>{
-          allFiles.push({name:f.name, cat:folder, download_url:f.download_url});
+          allFiles.push({name:f.name, cat:folder, download_url:f.download_url, sha:f.sha, path:f.path});
         });
       }
     }
-    render();
+    document.getElementById("count").innerText = "Total Documents: "+allFiles.length;
+    if(allFiles.length==0){ document.getElementById("list").innerHTML="<p>📁 No documents yet.</p>"; return; }
+    document.getElementById("list").innerHTML = allFiles.map(f=>{
+      let viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(f.download_url)}&embedded=true`;
+      let delBtn = isAdmin ? `<button onclick="delFile('${f.path}','${f.sha}','${f.name}')" style="background:#ff4757">Delete</button>` : ``;
+      return `<div class="card"><div><b>${f.name}</b><br><small>${f.cat}</small></div>
+      <div><a href="${viewUrl}" target="_blank"><button>View</button></a>
+      <a href="${f.download_url}" target="_blank"><button style="background:#00b894">Download</button></a> ${delBtn}</div></div>`;
+    }).join("");
   }catch(e){ document.getElementById("list").innerHTML="<p>Loading failed. Refresh karanna.</p>"; }
 }
 load();
 
+// 3. FIXED - Kalin files/ ekata upload une, dan hari folder ekata yanawa
 async function upload(){
   const file = document.getElementById("fileInput").files[0];
   const cat = document.getElementById("cat").value;
@@ -102,6 +90,19 @@ async function upload(){
     else{ document.getElementById("status").innerText="❌ Failed! Token eka check karanna"; }
   };
   reader.readAsDataURL(file);
+}
+
+// 4. NEW - DELETE OYATA WITHARAI
+async function delFile(path, sha, name){
+  if(!confirm(name + " delete karanda da?")) return;
+  const token = localStorage.getItem("gh_token");
+  const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(path)}`,{
+    method:"DELETE",
+    headers:{Authorization:"token "+token,"Content-Type":"application/json"},
+    body: JSON.stringify({message:"delete "+name, sha: sha})
+  });
+  if(res.ok){ alert("✅ Deleted!"); load(); }
+  else{ alert("❌ Delete Failed! Token eka check karanna"); }
 }
 </script>
 </body>
