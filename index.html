@@ -3,326 +3,106 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#080d1c">
-<title>Machn Education</title>
+<title>Tharu Education</title>
 <style>
-:root{--bg:#080d1c;--panel:#111b31;--panel2:#1b2945;--purple:#8057f5;--muted:#aab4cc;--line:#293650}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font-family:Arial,Helvetica,sans-serif}
-button,input{font:inherit}button{cursor:pointer}
-.layout{display:flex;min-height:100vh}.sidebar{width:235px;flex-shrink:0;background:#0d1529;border-right:1px solid var(--line);padding:25px 16px}
-.logo{font-size:22px;font-weight:800;margin:0 0 36px}.logo span{color:#a78bfa}
-.nav-btn{display:block;width:100%;padding:14px;margin:6px 0;border:0;border-radius:11px;background:transparent;color:var(--muted);text-align:left}
-.nav-btn.active,.nav-btn:hover{background:#302258;color:#fff}
-.main{flex:1;min-width:0;padding:28px 32px 40px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:25px}
-.top h2{font-size:21px;margin:0}.storage-pill{font-size:12px;color:#c9b6ff;background:#211b3b;border:1px solid #49377a;padding:9px 13px;border-radius:22px}
-.hero{padding:27px;border-radius:18px;background:linear-gradient(115deg,#39236d,#7650ce);margin-bottom:23px}
-.hero h1{font-size:27px;margin:0 0 10px}.hero p{margin:0;line-height:1.6;color:#eee6ff}
-.stats,.categories{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:24px}
-.stat,.category,.file{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:17px}
-.stat p,.category p{font-size:12px;color:var(--muted);margin:0 0 9px}.stat strong{font-size:23px}
-.heading{font-size:19px;margin:0 0 14px}.category{cursor:pointer;transition:.15s}.category:hover{border-color:#8057f5;transform:translateY(-2px)}
-.category.selected{border-color:#986bff;background:#241d43}.emoji{font-size:25px;margin-bottom:10px}.category h3{font-size:15px;margin:0 0 8px}
-.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}.search{flex:1;min-width:180px;padding:13px 14px;border-radius:10px;border:1px solid #34415e;background:var(--panel);color:#fff;outline:none}
-.search:focus{border-color:#986bff}.upload{display:none;border:0;border-radius:10px;padding:13px 17px;background:var(--purple);color:#fff;font-weight:700}
-.upload.show{display:block}.token-btn{display:none;border:1px solid #34415e;border-radius:10px;padding:13px 12px;background:var(--panel2);color:#fff;font-size:13px}
-.token-btn.show{display:block}
-.admin-btn{position:fixed;bottom:15px;right:15px;width:38px;height:38px;border-radius:50%;background:#1b2945;border:1px solid #34415e;color:#fff;z-index:1000;opacity:.6}
-.upload:disabled{opacity:.55;cursor:wait}#fileInput{display:none}
-.notice{display:none;padding:12px 14px;margin:0 0 15px;border-radius:10px;font-size:13px;line-height:1.5}
-.notice.show{display:block}.notice.error{background:#421d2a;color:#ffd8df;border:1px solid #8b3549}.notice.success{background:#123a2c;color:#c9ffe5;border:1px solid #267a55}.notice.info{background:#1b2945;color:#dce7ff;border:1px solid #344c78}
-.file-list{display:grid;gap:10px}.file{display:flex;align-items:center;gap:12px;min-width:0}
-.file-icon{font-size:25px}.file-info{flex:1;min-width:0}.file-info strong{display:block;font-size:14px;overflow-wrap:anywhere}.file-info small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
-.actions{display:flex;gap:7px;flex-wrap:wrap}.action{padding:9px 11px;border:1px solid #34415e;background:var(--panel2);color:#fff;border-radius:8px}.action.delete{color:#ff9da8}
-.empty{text-align:center;padding:38px 15px;border:1px dashed #34415e;border-radius:14px;color:var(--muted);line-height:1.6}
-.footer{text-align:center;color:#74819c;font-size:11px;margin-top:32px}
-.mobile-nav{display:none}
-@media(max-width:800px){.sidebar{display:none}.main{padding:20px 14px 92px}.mobile-nav{display:flex;position:fixed;z-index:5;bottom:0;left:0;right:0;background:#10182b;border-top:1px solid var(--line);justify-content:space-around;padding:10px 4px calc(10px + env(safe-area-inset-bottom))}.mobile-nav button{border:0;background:none;color:var(--muted);font-size:11px;display:flex;flex-direction:column;gap:5px;align-items:center}.mobile-nav button.active{color:#c1aaff}}
-@media(max-width:520px){.hero{padding:21px}.hero h1{font-size:23px}.stats,.categories{gap:7px}.stat,.category{padding:11px 8px}.stat strong{font-size:18px}.stat p,.category p{font-size:10px}.category h3{font-size:12px}.emoji{font-size:22px}.toolbar{flex-wrap:wrap}.search,.upload,.token-btn{width:100%;flex-basis:100%}.file{flex-wrap:wrap;padding:12px}.file-info{width:calc(100% - 45px)}.actions{width:100%;padding-left:36px}.top h2{font-size:17px}.storage-pill{font-size:10px}}
+*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#0f0f2a;color:#fff;padding:15px}
+.header{background:linear-gradient(90deg,#7b2ff7,#2f7bff);padding:20px;border-radius:15px}
+.card{background:#1e1e3a;padding:15px;border-radius:12px;margin:10px 0;display:flex;justify-content:space-between;align-items:center;gap:10px}
+button{background:#7b2ff7;color:#fff;border:0;padding:10px 14px;border-radius:8px;font-weight:bold;cursor:pointer}
+select,input{padding:10px;border-radius:8px;border:0;width:100%;margin:5px 0;color:#000}
+#adminBox{display:none;background:#1e1e3a;padding:15px;border-radius:12px;margin-top:15px}
+a{color:#fff;text-decoration:none}
+.filter{margin:10px 0;display:flex;gap:8px;flex-wrap:wrap}
+.filter button{background:#333}
+.filter button.active{background:#7b2ff7}
 </style>
 </head>
 <body>
-<div class="layout">
-  <aside class="sidebar">
-    <div class="logo">📚 Machn <span>Education</span></div>
-    <button class="nav-btn active" data-cat="Subject">📘 Subject</button>
-    <button class="nav-btn" data-cat="Short Note">📝 Short Note</button>
-    <button class="nav-btn" data-cat="Papers">📄 Papers</button>
-  </aside>
-  <main class="main">
-    <header class="top"><h2>Education Dashboard</h2><span class="storage-pill">☁️ Everyone can see</span></header>
-    <section class="hero"><h1>Welcome To Tharu Education 👋</h1><p>All documents here are visible to everyone. View and download any file.</p></section>
-    <section class="stats">
-      <div class="stat"><p>Total Documents</p><strong id="total">0</strong></div>
-      <div class="stat"><p>Categories</p><strong>03</strong></div>
-      <div class="stat"><p>Storage</p><strong>Cloud</strong></div>
-    </section>
-    <h3 class="heading">📂 Categories</h3>
-    <section class="categories">
-      <div class="category selected" data-cat="Subject"><div class="emoji">📘</div><h3>Subject</h3><p id="count-Subject">0 documents</p></div>
-      <div class="category" data-cat="Short Note"><div class="emoji">📝</div><h3>Short Note</h3><p id="count-Short Note">0 documents</p></div>
-      <div class="category" data-cat="Papers"><div class="emoji">📄</div><h3>Papers</h3><p id="count-Papers">0 documents</p></div>
-    </section>
-    <h3 class="heading" id="categoryTitle">📘 Subject Documents</h3>
-    <div class="toolbar">
-      <input class="search" id="search" type="search" placeholder="🔍 Search documents...">
-      <button class="upload" id="uploadBtn">＋ Upload Any File</button>
-      <button class="token-btn" id="tokenBtn">🔑 Change Token</button>
-      <input id="fileInput" type="file" multiple>
-    </div>
-    <div id="notice" class="notice" role="status"></div>
-    <div class="file-list" id="fileList"><div class="empty">Loading documents…</div></div>
- <div style="width:calc(100% + 56px); margin-left:-28px; margin-right:-28px; margin-top:25px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.3); border-left:0; border-right:0; padding:28px; color:white; box-sizing:border-box;">
-  <h3 style="margin:0; font-size:24px;">Contact Me</h3>
-  <div style="display:flex; gap:18px; margin-top:16px; align-items:center;">
-    <a href="https://wa.me/94776399895?text=Hyy%20Tharusha%20I%20came%20from%20your%20website" target="_blank" style="width:60px; height:60px; background:#25D366; border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none;">
-      <svg width="34" height="34" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    </a>
-    <a href="https://www.facebook.com/share/1A7HmEEpS7/" target="_blank" style="width:60px; height:60px; background:#1877F2; border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none;">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-    </a>
-  </div>
-  <p style="margin:16px 0 0; color:#aab4cc; font-size:14px;">Thank you for using! 🤍</p>
+<div class="header"><h2>Welcome To Tharu Education 👋</h2><p>All documents visible to everyone. View & Download any file.</p></div>
+
+<h3 id="count">Total Documents: Loading...</h3>
+<div class="filter">
+<button class="active" onclick="setFilter('All',this)">All</button>
+<button onclick="setFilter('Papers',this)">Papers</button>
+<button onclick="setFilter('Subject',this)">Subject</button>
+<button onclick="setFilter('Short Note',this)">Short Note</button>
 </div>
-    <div class="footer">© 2026 Machn Education</div>
-  </main>
+
+<div id="list"><p>Loading...</p></div>
+
+<div id="adminBox">
+<h3>🔐 Admin Upload (Oya Witharai)</h3>
+<select id="cat"><option value="Subject">Subject</option><option value="Short Note">Short Note</option><option value="Papers">Papers</option></select>
+<input type="file" id="fileInput" accept=".pdf">
+<button onclick="upload()">Upload PDF</button>
+<p id="status"></p>
 </div>
-<nav class="mobile-nav">
-  <button class="active" data-cat="Subject">📘<span>Subject</span></button>
-  <button data-cat="Short Note">📝<span>Short Note</span></button>
-  <button data-cat="Papers">📄<span>Papers</span></button>
-</nav>
+
 <script>
-"use strict";
-const GITHUB_USER="wishadaone123";
-const GITHUB_REPO="Machn-education";
-let BRANCH="main";
-let documents=[], currentCategory="Subject", isAdmin=false;
-const $=id=>document.getElementById(id);
-function iconFor(name){
-  const ext=(name.split(".").pop()||"").toLowerCase();
-  if(["pdf"].includes(ext))return "📕";
-  if(["doc","docx","txt","rtf"].includes(ext))return "📘";
-  if(["ppt","pptx"].includes(ext))return "📙";
-  if(["xls","xlsx","csv"].includes(ext))return "📗";
-  if(["jpg","jpeg","png","gif","webp","heic"].includes(ext))return "🖼️";
-  if(["mp4","mov","mkv","webm"].includes(ext))return "🎬";
-  if(["mp3","wav","m4a"].includes(ext))return "🎵";
-  if(["zip","rar","7z"].includes(ext))return "🗜️";
-  return "📁";
+const USER="wishadaone123", REPO="Machn-education";
+let allFiles=[], currentFilter="All";
+
+if(location.search.includes("admin=1")){
+  document.getElementById("adminBox").style.display="block";
+  let t = localStorage.getItem("gh_token");
+  if(!t){ t = prompt("Admin Token eka danna (1 parai):"); if(t) localStorage.setItem("gh_token",t); }
 }
-function showNotice(m,t="info"){const el=$("notice");el.textContent=m;el.className="notice show "+t;}
-function hideNotice(){$("notice").className="notice";}
-function sizeText(b){if(b<1024)return b+" B";if(b<1048576)return (b/1024).toFixed(1)+" KB";return (b/1048576).toFixed(2)+" MB";}
-function folderToCategory(f){
-  const x=f.toLowerCase().replace(/%20/g," ").replace(/[-_]/g," ").trim();
-  if(x==="papers"||x==="paper")return "Papers";
-  if(x==="short note"||x==="short notes"||x==="shortnote"||x==="notes"||x==="note")return "Short Note";
-  if(x==="subject"||x==="subjects")return "Subject";
-  return null;
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.filter button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); render();
 }
-function guessCategory(name,path){
-  const n=(name+" "+path).toLowerCase();
-  if(n.includes("paper"))return "Papers";
-  if(n.includes("short")||n.includes("note"))return "Short Note";
-  return "Subject";
-}
-// --- FIXED TOKEN PART ---
-function cleanToken(t){
-  if(!t) return "";
-  return t.trim().replace(/\s/g,"").replace(/^Bearer\s+/i,"").replace(/^token\s+/i,"");
-}
-function getToken(){return cleanToken(localStorage.getItem("gh_token")||"");}
-function saveToken(t){ t=cleanToken(t); if(t) localStorage.setItem("gh_token",t); return t; }
-function askToken(){
-  let t=prompt("GitHub Token eka danna (ghp_...):\nCLASSIC token ekak one! github.com/settings/tokens > Generate new token (classic) > repo tick karanna!");
-  if(!t) return "";
-  t=cleanToken(t);
-  if(!t.startsWith("ghp_") && !t.startsWith("github_pat_")){
-    alert("Token eka waradi! ghp_ walin patan ganna one! Copy karaddi waradi athi, aye copy karanna!");
-    return "";
-  }
-  return saveToken(t);
-}
-function clearToken(){localStorage.removeItem("gh_token");}
-async function checkToken(token){
-  try{
-    const r=await fetch(`https://api.github.com/user`,{headers:{"Authorization":"token "+token,"Accept":"application/vnd.github+json"}});
-    return r.ok;
-  }catch(e){ return false; }
-}
-async function detectBranch(){
-  try{
-    const r=await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}`);
-    if(r.ok){const j=await r.json();if(j.default_branch){BRANCH=j.default_branch;return BRANCH;}}
-  }catch(e){}
-  for(const b of ["main","master"]){
-    try{
-      const r=await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/${b}?recursive=1`);
-      if(r.ok){BRANCH=b;return b;}
-    }catch(e){}
-  }
-  return BRANCH;
-}
-async function loadCloudDocs(){
-  await detectBranch();
-  let out=[];
-  try{
-    const r=await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/${BRANCH}?recursive=1`);
-    if(r.ok){
-      const j=await r.json();
-      (j.tree||[]).forEach((file)=>{
-        if(file.type!=="blob")return;
-        const lower=file.path.toLowerCase();
-        if(file.path==="index.html")return;
-        if(file.path.endsWith(".keep")||lower.endsWith(".keep"))return;
-        if(lower.endsWith(".pdf"))return;
-        if(lower.endsWith(".md")||lower.endsWith(".json")||lower.startsWith(".git"))return;
-        if(lower.endsWith(".html")||lower.endsWith(".css")||lower.endsWith(".js"))return;
-        const name=file.path.split("/").pop();
-        const folder=file.path.includes("/")?file.path.split("/").slice(0,-1).join("/"): "";
-        const cat=folder?folderToCategory(folder):null;
-        const finalCat=cat||guessCategory(name,file.path);
-        const url=`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/${file.path.split("/").map(s=>encodeURIComponent(s)).join("/")}`;
-        if(out.some(o=>o.cloudUrl===url))return;
-        out.push({id:'gh-'+file.path,name:name,category:finalCat,size:file.size||0,date:"GitHub • "+file.path,savedAt:Date.now(),cloudUrl:url,path:file.path,sha:file.sha});
-      });
-    }
-  }catch(e){}
-  return out;
-}
-async function refresh(){documents=await loadCloudDocs();render();}
 function render(){
-  const list=$("fileList"),q=$("search").value.trim().toLowerCase();
-  $("total").textContent=documents.length;
-  ["Subject","Short Note","Papers"].forEach(cat=>{$("count-"+cat).textContent=documents.filter(d=>d.category===cat).length+" documents";});
-  const filtered=documents.filter(d=>d.category===currentCategory && d.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
-  list.replaceChildren();
-  if(!filtered.length){const e=document.createElement("div");e.className="empty";e.textContent=q?"No matching documents.":"📂 No documents in this category yet.";list.appendChild(e);return;}
-  filtered.forEach(d=>{
-    const row=document.createElement("div");row.className="file";
-    const icon=document.createElement("div");icon.className="file-icon";icon.textContent=iconFor(d.name);
-    const info=document.createElement("div");info.className="file-info";
-    const name=document.createElement("strong");name.textContent=d.name;
-    const meta=document.createElement("small");meta.textContent="☁️ Cloud • "+sizeText(d.size)+" • "+d.date;
-    info.append(name,meta);
-    const actions=document.createElement("div");actions.className="actions";
-    const view=document.createElement("button");view.className="action";view.textContent="👁 View";
-    view.addEventListener("click",()=>{window.open(d.cloudUrl,'_blank');});
-    const down=document.createElement("button");down.className="action";down.textContent="⬇ Download";
-    down.addEventListener("click",()=>{const a=document.createElement("a");a.href=d.cloudUrl;a.download=d.name;a.target="_blank";document.body.appendChild(a);a.click();a.remove();});
-    actions.append(view,down);
-    if(isAdmin){
-      const del=document.createElement("button");del.className="action delete";del.textContent="✕ Delete";
-      del.addEventListener("click",async()=>{if(!confirm("Delete "+d.name+"?"))return;await deleteFromGitHub(d);});
-      actions.append(del);
-    }
-    row.append(icon,info,actions);list.appendChild(row);
-  });
+  let list = allFiles.filter(f=> currentFilter=="All" || f.cat==currentFilter);
+  document.getElementById("count").innerText = "Total Documents: "+allFiles.length;
+  if(list.length==0){ document.getElementById("list").innerHTML="<p>📁 Me category eke file na.</p>"; return; }
+  document.getElementById("list").innerHTML = list.map(f=>{
+    let viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(f.download_url)}&embedded=true`;
+    return `<div class="card"><div><b>${f.name}</b><br><small>${f.cat}</small></div>
+    <div style="display:flex;gap:5px"><a href="${viewUrl}" target="_blank"><button>View</button></a>
+    <a href="${f.download_url}" target="_blank"><button style="background:#00b894">Download</button></a></div></div>`;
+  }).join("");
 }
-function chooseCategory(cat){
-  currentCategory=cat;
-  document.querySelectorAll("[data-cat]").forEach(el=>{el.classList.toggle("active",el.dataset.cat===cat);if(el.classList.contains("category"))el.classList.toggle("selected",el.dataset.cat===cat);});
-  const s={"Subject":"📘","Short Note":"📝","Papers":"📄"};
-  $("categoryTitle").textContent=s[cat]+" "+cat+" Documents";$("search").value="";hideNotice();render();
-}
-document.querySelectorAll("[data-cat]").forEach(el=>el.addEventListener("click",()=>chooseCategory(el.dataset.cat)));
-$("search").addEventListener("input",render);
-$("uploadBtn").addEventListener("click",()=>$("fileInput").click());
-$("tokenBtn").addEventListener("click",async()=>{
-  clearToken();
-  const t=askToken();
-  if(!t){showNotice("Token eka save une na - ghp_ walin patan ganna token ekak danna!","error");return;}
-  showNotice("Token eka check karanawa...","info");
-  const ok=await checkToken(t);
-  if(ok) showNotice("Token eka HARI! ✅ Dan Upload karanna!","success");
-  else { clearToken(); showNotice("Token eka WARADI! ❌ github.com/settings/tokens gihin CLASSIC token ekak hadanna - repo tick karanna one!","error"); }
-});
-function fileToBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});}
-async function uploadToGitHub(file,token){
-  await detectBranch();
-  const folder=currentCategory;
-  const cleanName=file.name.replace(/[^\w.\- ()]/g,"").trim() || "file";
-  const path=folder+"/"+cleanName;
-  const content=await fileToBase64(file);
-  const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path.split("/").map(s=>encodeURIComponent(s)).join("/")}`;
-  const res=await fetch(url,{method:"PUT",headers:{"Authorization":"token "+token,"Accept":"application/vnd.github+json","Content-Type":"application/json"},body:JSON.stringify({message:"Upload "+cleanName,content:content,branch:BRANCH})});
-  if(!res.ok){
-    const e=await res.json().catch(()=>({}));
-    let msg=e.message||("Upload failed - "+res.status);
-    if(res.status===404||msg.toLowerCase().includes("not found")) msg="Token eka waradi / repo tick karala na! Aluth CLASSIC token ekak hadanna - repo tick karanna!";
-    if(res.status===401||res.status===403) msg="Token eka expire wela / repo permission na! Aluth CLASSIC token ekak hadanna!";
-    if(res.status===422) msg="File eka already thiyenawa! Nallla wena namakin upload karanna!";
-    throw new Error(msg);
-  }
-  return true;
-}
-async function deleteFromGitHub(d){
-  let token=getToken();if(!token)token=askToken();if(!token)return;
-  await detectBranch();
+async function load(){
   try{
-    const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${d.path.split("/").map(s=>encodeURIComponent(s)).join("/")}`;
-    const getR=await fetch(url,{headers:{"Authorization":"token "+token,"Accept":"application/vnd.github+json"}});
-    const getJ=await getR.json();
-    const delR=await fetch(url,{method:"DELETE",headers:{"Authorization":"token "+token,"Accept":"application/vnd.github+json","Content-Type":"application/json"},body:JSON.stringify({message:"Delete "+d.name,sha:getJ.sha,branch:BRANCH})});
-    if(!delR.ok)throw new Error("Delete failed - Token eka check karanna");
-    showNotice("Deleted!","success");await refresh();
-  }catch(e){showNotice(e.message,"error");}
-}
-$("fileInput").addEventListener("change",async event=>{
-  const files=Array.from(event.target.files||[]);event.target.value="";if(!files.length)return;
-  let token=getToken();if(!token)token=askToken();if(!token){showNotice("Token eka nathuwa upload karanna ba.","error");return;}
-  // Token eka hari da kiyala kalin check karanawa - hari nathnam upload karanne na
-  const okToken=await checkToken(token);
-  if(!okToken){ clearToken(); showNotice("Token eka WARADI! ❌ Change Token obala aluth CLASSIC token ekak danna - repo tick karala!","error"); return; }
-  $("uploadBtn").disabled=true;showNotice("Uploading "+files.length+" file(s) to Cloud... Thawa tikak inna...","info");
-  let ok=0,fail=[];
-  for(const file of files){
-    if(file.size>90*1024*1024){fail.push(file.name+" - File eka loku wadi (90MB walata adu karanna)");continue;}
-    try{await uploadToGitHub(file,token);ok++;}
-    catch(e){
-      fail.push(file.name+" - "+e.message);
-      if(e.message.toLowerCase().includes("token")){clearToken();break;}
+    allFiles=[];
+    // OYA REPO EKE THIYENA FOLDERS 3NMA BALANNE - files kiyala ekak na!
+    for(let folder of ["Papers","Subject","Short Note"]){
+      const r = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(folder)}?t=${Date.now()}`);
+      if(!r.ok) continue;
+      const files = await r.json();
+      if(Array.isArray(files)){
+        files.filter(f=>f.name.toLowerCase().endsWith(".pdf")).forEach(f=>{
+          allFiles.push({name:f.name, cat:folder, download_url:f.download_url});
+        });
+      }
     }
-  }
-  $("uploadBtn").disabled=false;
-  if(fail.length)showNotice("Fail: "+fail.join("; "),"error");
-  else showNotice(ok+" file(s) uploaded! Dan anith ayata okkoma pennanawa!","success");
-  await refresh();
-});
-refresh();
-</script>
-<canvas id="rainCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:999;"></canvas>
-<script>
-const canvas = document.getElementById('rainCanvas');
-const ctx = canvas.getContext('2d');
-let drops = [];
-function resize(){canvas.width = window.innerWidth;canvas.height = window.innerHeight;}
-window.addEventListener('resize', resize);resize();
-for(let i=0; i<120; i++){drops.push({x: Math.random() * canvas.width,y: Math.random() * canvas.height,len: 15 + Math.random() * 20,speed: 8 + Math.random() * 10,opacity: 0.2 + Math.random() * 0.4});}
-function rain(){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.lineWidth = 1.5;ctx.lineCap = 'round';drops.forEach(d => {ctx.strokeStyle = `rgba(174,194,224,${d.opacity})`;ctx.beginPath();ctx.moveTo(d.x, d.y);ctx.lineTo(d.x - 3, d.y + d.len);ctx.stroke();d.y += d.speed;d.x -= 1;if(d.y > canvas.height){d.y = -20;d.x = Math.random() * canvas.width;}});requestAnimationFrame(rain);}rain();
-</script>
-<div style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden;">
-  <div style="position:absolute; width:450px; height:450px; background:radial-gradient(circle, rgba(128,87,245,0.45), transparent 70%); filter:blur(60px); top:-100px; left:-100px; animation: glowMove1 9s ease-in-out infinite alternate;"></div>
-  <div style="position:absolute; width:400px; height:400px; background:radial-gradient(circle, rgba(0,200,255,0.35), transparent 70%); filter:blur(60px); bottom:-100px; right:-50px; animation: glowMove2 11s ease-in-out infinite alternate;"></div>
-  <div style="position:absolute; width:300px; height:300px; background:radial-gradient(circle, rgba(255,0,150,0.25), transparent 70%); filter:blur(60px); top:40%; left:50%; animation: glowMove1 13s ease-in-out infinite alternate;"></div>
-</div>
-<style>
-@keyframes glowMove1{ from{ transform: translate(0,0) scale(1); } to{ transform: translate(80px, 60px) scale(1.2); } }
-@keyframes glowMove2{ from{ transform: translate(0,0) scale(1.1); } to{ transform: translate(-90px, -70px) scale(0.9); } }
-</style>
-<button class="admin-btn" id="adminBtn">🔒</button>
-<script>
-const ADMIN_PASSWORD="tharu123";
-document.getElementById("adminBtn").addEventListener("click",()=>{
-  const p=prompt("Admin Password:");
-  if(p===ADMIN_PASSWORD){
-    isAdmin=true;
-    document.getElementById("uploadBtn").classList.add("show");
-    document.getElementById("tokenBtn").classList.add("show");
-    alert("Admin unlocked! Dan Upload + Delete + Change Token karanna puluwan!");
     render();
-  } else if(p!==null){ alert("Wrong password!"); }
-});
+  }catch(e){ document.getElementById("list").innerHTML="<p>Loading failed. Refresh karanna.</p>"; }
+}
+load();
+
+async function upload(){
+  const file = document.getElementById("fileInput").files[0];
+  const cat = document.getElementById("cat").value;
+  const token = localStorage.getItem("gh_token");
+  if(!file) return alert("PDF ekak select karanna");
+  if(!token) return alert("Token na!");
+  document.getElementById("status").innerText="Uploading... ⏳";
+  const fileName = file.name.replace(/ /g,"_");
+  const reader = new FileReader();
+  reader.onload = async ()=>{
+    const base64 = reader.result.split(",")[1];
+    const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(cat)}/${encodeURIComponent(fileName)}`,{
+      method:"PUT",
+      headers:{Authorization:"token "+token,"Content-Type":"application/json"},
+      body: JSON.stringify({message:"upload "+fileName, content: base64})
+    });
+    if(res.ok){ document.getElementById("status").innerText="✅ Uploaded! 10 sec inna..."; setTimeout(load,3000); }
+    else{ document.getElementById("status").innerText="❌ Failed! Token eka check karanna"; }
+  };
+  reader.readAsDataURL(file);
+}
 </script>
 </body>
 </html>
