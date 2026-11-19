@@ -126,13 +126,30 @@ function guessCategory(name,path){
   if(n.includes("short")||n.includes("note"))return "Short Note";
   return "Subject";
 }
-function getToken(){return (localStorage.getItem("gh_token")||"").trim();}
-function askToken(force){
-  let t=prompt("GitHub Token eka danna (ghp_...):\nToken eka nathnam github.com/settings/tokens gihin hadaganna - repo tick karanna!");
-  if(t){t=t.trim();localStorage.setItem("gh_token",t);return t;}
-  return "";
+// --- FIXED TOKEN PART ---
+function cleanToken(t){
+  if(!t) return "";
+  return t.trim().replace(/\s/g,"").replace(/^Bearer\s+/i,"").replace(/^token\s+/i,"");
+}
+function getToken(){return cleanToken(localStorage.getItem("gh_token")||"");}
+function saveToken(t){ t=cleanToken(t); if(t) localStorage.setItem("gh_token",t); return t; }
+function askToken(){
+  let t=prompt("GitHub Token eka danna (ghp_...):\nCLASSIC token ekak one! github.com/settings/tokens > Generate new token (classic) > repo tick karanna!");
+  if(!t) return "";
+  t=cleanToken(t);
+  if(!t.startsWith("ghp_") && !t.startsWith("github_pat_")){
+    alert("Token eka waradi! ghp_ walin patan ganna one! Copy karaddi waradi athi, aye copy karanna!");
+    return "";
+  }
+  return saveToken(t);
 }
 function clearToken(){localStorage.removeItem("gh_token");}
+async function checkToken(token){
+  try{
+    const r=await fetch(`https://api.github.com/user`,{headers:{"Authorization":"token "+token,"Accept":"application/vnd.github+json"}});
+    return r.ok;
+  }catch(e){ return false; }
+}
 async function detectBranch(){
   try{
     const r=await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}`);
@@ -158,7 +175,6 @@ async function loadCloudDocs(){
         const lower=file.path.toLowerCase();
         if(file.path==="index.html")return;
         if(file.path.endsWith(".keep")||lower.endsWith(".keep"))return;
-        // PDF tika ain karala - me line eka nisa PDF pennanne na
         if(lower.endsWith(".pdf"))return;
         if(lower.endsWith(".md")||lower.endsWith(".json")||lower.startsWith(".git"))return;
         if(lower.endsWith(".html")||lower.endsWith(".css")||lower.endsWith(".js"))return;
@@ -212,10 +228,14 @@ function chooseCategory(cat){
 document.querySelectorAll("[data-cat]").forEach(el=>el.addEventListener("click",()=>chooseCategory(el.dataset.cat)));
 $("search").addEventListener("input",render);
 $("uploadBtn").addEventListener("click",()=>$("fileInput").click());
-$("tokenBtn").addEventListener("click",()=>{
+$("tokenBtn").addEventListener("click",async()=>{
   clearToken();
-  const t=askToken(true);
-  if(t) showNotice("Aluth Token eka save una! Dan Upload karanna!","success");
+  const t=askToken();
+  if(!t){showNotice("Token eka save une na - ghp_ walin patan ganna token ekak danna!","error");return;}
+  showNotice("Token eka check karanawa...","info");
+  const ok=await checkToken(t);
+  if(ok) showNotice("Token eka HARI! ✅ Dan Upload karanna!","success");
+  else { clearToken(); showNotice("Token eka WARADI! ❌ github.com/settings/tokens gihin CLASSIC token ekak hadanna - repo tick karanna one!","error"); }
 });
 function fileToBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});}
 async function uploadToGitHub(file,token){
@@ -225,12 +245,13 @@ async function uploadToGitHub(file,token){
   const path=folder+"/"+cleanName;
   const content=await fileToBase64(file);
   const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path.split("/").map(s=>encodeURIComponent(s)).join("/")}`;
-  const res=await fetch(url,{method:"PUT",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"Upload "+cleanName,content:content,branch:BRANCH})});
+  const res=await fetch(url,{method:"PUT",headers:{"Authorization":"token "+token,"Accept":"application/vnd.github+json","Content-Type":"application/json"},body:JSON.stringify({message:"Upload "+cleanName,content:content,branch:BRANCH})});
   if(!res.ok){
     const e=await res.json().catch(()=>({}));
     let msg=e.message||("Upload failed - "+res.status);
-    if(res.status===404||msg.toLowerCase().includes("not found")) msg="Token eka waradi / repo tick karala na! Change Token obala aluth token ekak danna!";
-    if(res.status===401) msg="Token eka expire wela! Change Token obala aluth ekak danna!";
+    if(res.status===404||msg.toLowerCase().includes("not found")) msg="Token eka waradi / repo tick karala na! Aluth CLASSIC token ekak hadanna - repo tick karanna!";
+    if(res.status===401||res.status===403) msg="Token eka expire wela / repo permission na! Aluth CLASSIC token ekak hadanna!";
+    if(res.status===422) msg="File eka already thiyenawa! Nallla wena namakin upload karanna!";
     throw new Error(msg);
   }
   return true;
@@ -240,9 +261,9 @@ async function deleteFromGitHub(d){
   await detectBranch();
   try{
     const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${d.path.split("/").map(s=>encodeURIComponent(s)).join("/")}`;
-    const getR=await fetch(url,{headers:{"Authorization":"Bearer "+token}});
+    const getR=await fetch(url,{headers:{"Authorization":"token "+token,"Accept":"application/vnd.github+json"}});
     const getJ=await getR.json();
-    const delR=await fetch(url,{method:"DELETE",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"Delete "+d.name,sha:getJ.sha,branch:BRANCH})});
+    const delR=await fetch(url,{method:"DELETE",headers:{"Authorization":"token "+token,"Accept":"application/vnd.github+json","Content-Type":"application/json"},body:JSON.stringify({message:"Delete "+d.name,sha:getJ.sha,branch:BRANCH})});
     if(!delR.ok)throw new Error("Delete failed - Token eka check karanna");
     showNotice("Deleted!","success");await refresh();
   }catch(e){showNotice(e.message,"error");}
@@ -250,6 +271,9 @@ async function deleteFromGitHub(d){
 $("fileInput").addEventListener("change",async event=>{
   const files=Array.from(event.target.files||[]);event.target.value="";if(!files.length)return;
   let token=getToken();if(!token)token=askToken();if(!token){showNotice("Token eka nathuwa upload karanna ba.","error");return;}
+  // Token eka hari da kiyala kalin check karanawa - hari nathnam upload karanne na
+  const okToken=await checkToken(token);
+  if(!okToken){ clearToken(); showNotice("Token eka WARADI! ❌ Change Token obala aluth CLASSIC token ekak danna - repo tick karala!","error"); return; }
   $("uploadBtn").disabled=true;showNotice("Uploading "+files.length+" file(s) to Cloud... Thawa tikak inna...","info");
   let ok=0,fail=[];
   for(const file of files){
