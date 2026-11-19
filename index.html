@@ -3,117 +3,224 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tharu Education</title>
+<meta name="theme-color" content="#080d1c">
+<title>Machn Education</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#0f0f2a;color:#fff;padding:15px;overflow-x:hidden}
-.top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
-.badge{background:#2a2a4a;padding:6px 12px;border-radius:20px;font-size:12px}
-.header{background:linear-gradient(90deg,#7b2ff7,#9b5cff);padding:20px;border-radius:15px;margin:15px 0;position:relative;z-index:2}
-.header h2{margin:0;font-size:24px}
-.stats{display:flex;gap:10px;position:relative;z-index:2}.stat{background:#1e1e3a;padding:15px;border-radius:12px;flex:1}.stat small{color:#aaa}.stat b{font-size:24px}
-.cats{display:flex;gap:10px;margin:15px 0;position:relative;z-index:2}.cat{background:#1e1e3a;padding:15px;border-radius:12px;flex:1;cursor:pointer;border:2px solid transparent}.cat.active{border-color:#a06bff}.cat small{color:#aaa}
-.card{background:#1e1e3a;padding:15px;border-radius:12px;margin:10px 0;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
-button{background:#7b2ff7;color:#fff;border:0;padding:10px 15px;border-radius:8px;font-weight:bold;cursor:pointer}
-input,select{padding:10px;border-radius:8px;border:0;width:100%;margin:5px 0;background:#2a2a4a;color:#fff}
-.searchRow{display:flex;gap:10px;position:relative;z-index:2}.searchRow input{flex:1}
-#adminBox{display:none;background:#1e1e3a;padding:15px;border-radius:12px;margin-top:15px;position:relative;z-index:2}
-#viewer{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.9); z-index:99; padding:10px; }
-#viewer iframe{ width:100%; height:90%; border:0; border-radius:10px; background:#fff; }
-.rain{ position:fixed; top:-20px; width:2px; height:80px; background:linear-gradient(transparent, #a5d8ff); opacity:.6; z-index:1; pointer-events:none; animation: fall linear infinite; }
-@keyframes fall{ to{ transform: translateY(110vh); } }
-/* CONTACT - SCREENSHOT EKE WIDIYATA */
-.contact{ margin-top:30px; position:relative; z-index:2; }
-.contact a{ display:inline-flex; align-items:center; justify-content:center; width:55px; height:55px; border-radius:50%; margin-right:10px; text-decoration:none; }
-.contact a img{ width:32px; height:32px; }
+:root{--bg:#080d1c;--panel:#111b31;--panel2:#1b2945;--purple:#8057f5;--muted:#aab4cc;--line:#293650}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font-family:Arial,Helvetica,sans-serif}
+button,input{font:inherit}button{cursor:pointer}
+.layout{display:flex;min-height:100vh}.sidebar{width:235px;flex-shrink:0;background:#0d1529;border-right:1px solid var(--line);padding:25px 16px}
+.logo{font-size:22px;font-weight:800;margin:0 0 36px}.logo span{color:#a78bfa}
+.nav-btn{display:block;width:100%;padding:14px;margin:6px 0;border:0;border-radius:11px;background:transparent;color:var(--muted);text-align:left}
+.nav-btn.active,.nav-btn:hover{background:#302258;color:#fff}
+.main{flex:1;min-width:0;padding:28px 32px 40px;position:relative;z-index:2}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:25px}
+.top h2{font-size:21px;margin:0}.storage-pill{font-size:12px;color:#c9b6ff;background:#211b3b;border:1px solid #49377a;padding:9px 13px;border-radius:22px}
+.hero{padding:27px;border-radius:18px;background:linear-gradient(115deg,#39236d,#7650ce);margin-bottom:23px}
+.hero h1{font-size:27px;margin:0 0 10px}.hero p{margin:0;line-height:1.6;color:#eee6ff}
+.stats,.categories{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:24px}
+.stat,.category,.file{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:17px}
+.stat p,.category p{font-size:12px;color:var(--muted);margin:0 0 9px}.stat strong{font-size:23px}
+.heading{font-size:19px;margin:0 0 14px}.category{cursor:pointer;transition:.15s}.category:hover{border-color:#8057f5;transform:translateY(-2px)}
+.category.selected{border-color:#986bff;background:#241d43}.emoji{font-size:25px;margin-bottom:10px}.category h3{font-size:15px;margin:0 0 8px}
+.toolbar{display:flex;gap:10px;margin-bottom:16px}.search{flex:1;min-width:0;padding:13px 14px;border-radius:10px;border:1px solid #34415e;background:var(--panel);color:#fff;outline:none}
+.search:focus{border-color:#986bff}.upload{border:0;border-radius:10px;padding:13px 17px;background:var(--purple);color:#fff;font-weight:700}
+.upload:disabled{opacity:.55;cursor:wait}#fileInput{display:none}
+.notice{display:none;padding:12px 14px;margin:0 0 15px;border-radius:10px;font-size:13px;line-height:1.5}
+.notice.show{display:block}.notice.error{background:#421d2a;color:#ffd8df;border:1px solid #8b3549}.notice.success{background:#123a2c;color:#c9ffe5;border:1px solid #267a55}.notice.info{background:#1b2945;color:#dce7ff;border:1px solid #344c78}
+.file-list{display:grid;gap:10px}.file{display:flex;align-items:center;gap:12px;min-width:0}
+.file-icon{font-size:25px}.file-info{flex:1;min-width:0}.file-info strong{display:block;font-size:14px;overflow-wrap:anywhere}.file-info small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
+.actions{display:flex;gap:7px;flex-wrap:wrap}.action{padding:9px 11px;border:1px solid #34415e;background:var(--panel2);color:#fff;border-radius:8px}.action.delete{color:#ff9da8}
+.empty{text-align:center;padding:38px 15px;border:1px dashed #34415e;border-radius:14px;color:var(--muted);line-height:1.6}
+.footer{text-align:center;color:#74819c;font-size:11px;margin-top:32px}
+.mobile-nav{display:none}
+.admin-btn{position:fixed;bottom:15px;right:15px;z-index:100;width:48px;height:48px;border-radius:50%;background:#2a2a4a;border:1px solid #49377a;font-size:18px;padding:0}
+@keyframes glowMove1{from{transform:translate(0,0) scale(1)}to{transform:translate(80px,60px) scale(1.2)}}
+@keyframes glowMove2{from{transform:translate(0,0) scale(1.1)}to{transform:translate(-90px,-70px) scale(0.9)}}
+#viewer{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:99;padding:10px}
+#viewer iframe{width:100%;height:90%;border:0;border-radius:10px;background:#fff}
+@media(max-width:800px){.sidebar{display:none}.main{padding:20px 14px 92px}.mobile-nav{display:flex;position:fixed;z-index:5;bottom:0;left:0;right:0;background:#10182b;border-top:1px solid var(--line);justify-content:space-around;padding:10px 4px calc(10px + env(safe-area-inset-bottom))}.mobile-nav button{border:0;background:none;color:var(--muted);font-size:11px;display:flex;flex-direction:column;gap:5px;align-items:center}.mobile-nav button.active{color:#c1aaff}}
+@media(max-width:520px){.hero{padding:21px}.hero h1{font-size:23px}.stats,.categories{gap:7px}.stat,.category{padding:11px 8px}.stat strong{font-size:18px}.stat p,.category p{font-size:10px}.category h3{font-size:12px}.emoji{font-size:22px}.toolbar{flex-wrap:wrap}.search,.upload{width:100%;flex-basis:100%}.file{flex-wrap:wrap;padding:12px}.file-info{width:calc(100% - 45px)}.actions{width:100%;padding-left:36px}.top h2{font-size:17px}.storage-pill{font-size:10px}}
 </style>
 </head>
 <body>
-<div id="rainBox"></div>
-<div class="top"><h2>Education Dashboard</h2><span class="badge">☁️ Everyone can see</span></div>
-<div class="header"><h2>Welcome To Tharu Education 👋</h2><p>All documents here are visible to everyone. View and download any file.</p></div>
-<div class="stats">
-<div class="stat"><small>Total Documents</small><br><b id="totalCount">0</b></div>
-<div class="stat"><small>Categories</small><br><b>03</b></div>
-<div class="stat"><small>Storage</small><br><b>Cloud</b></div>
+<!-- GLOW -->
+<div style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;">
+  <div style="position:absolute;width:450px;height:450px;background:radial-gradient(circle, rgba(128,87,245,0.45), transparent 70%);filter:blur(60px);top:-100px;left:-100px;animation:glowMove1 9s ease-in-out infinite alternate;"></div>
+  <div style="position:absolute;width:400px;height:400px;background:radial-gradient(circle, rgba(0,200,255,0.35), transparent 70%);filter:blur(60px);bottom:-100px;right:-50px;animation:glowMove2 11s ease-in-out infinite alternate;"></div>
+  <div style="position:absolute;width:300px;height:300px;background:radial-gradient(circle, rgba(255,0,150,0.25), transparent 70%);filter:blur(60px);top:40%;left:50%;animation:glowMove1 13s ease-in-out infinite alternate;"></div>
 </div>
-<h3>📁 Categories</h3>
-<div class="cats">
-<div class="cat" id="cat-Subject" onclick="setCat('Subject')"><div style="font-size:24px">📘</div><b>Subject</b><br><small id="c-Subject">0 documents</small></div>
-<div class="cat" id="cat-Short Note" onclick="setCat('Short Note')"><div style="font-size:24px">📝</div><b>Short Note</b><br><small id="c-Short Note">0 documents</small></div>
-<div class="cat active" id="cat-Papers" onclick="setCat('Papers')"><div style="font-size:24px">📄</div><b>Papers</b><br><small id="c-Papers">0 documents</small></div>
-</div>
-<h3 id="catTitle">📄 Papers Documents</h3>
-<div class="searchRow">
-<input id="search" placeholder="🔍 Search documents..." oninput="render()">
-<button onclick="showUpload()" style="background:#a06bff">+ Upload Any File</button>
-<button onclick="changeToken()" style="background:#2a2a4a">🔑 Change Token</button>
-</div>
-<div id="adminBox">
-<h3>🔐 Admin Upload (Oya Witharai)</h3>
-<select id="catSel"><option value="Subject">Subject</option><option value="Short Note">Short Note</option><option value="Papers">Papers</option></select>
-<input type="file" id="fileInput" accept=".pdf">
-<button onclick="upload()">Upload PDF</button>
-<p id="status"></p>
-</div>
-<p id="errBox" style="display:none;background:#4a1a2a;padding:12px;border-radius:10px;color:#ffb3b3"></p>
-<div id="list"><p style="text-align:center;padding:20px">Loading...</p></div>
+<!-- WAHI - SOFT 55 -->
+<canvas id="rainCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;"></canvas>
 
-<!-- CONTACT ME - OYA KIYAPU WIDIYATA MA -->
-<div class="contact">
-<h2>Contact Me</h2>
-<!-- WhatsApp - Click karama oya msg eka ma enawa -->
-<a href="https://wa.me/94776399895?text=Hyy%20Tharusha%F0%9F%91%8B%F0%9F%91%8B%20I%20came%20from%20your%20website%20%F0%9F%A4%8D" target="_blank" style="background:#25D366">
-<img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-</a>
-<!-- Facebook - Oya link eka -->
-<a href="https://www.facebook.com/share/1BfSx7ALrx/" target="_blank" style="background:#1877F2">
-<img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" alt="Facebook" style="width:28px;height:28px;">
-</a>
-<p style="color:#aaa">Thank you for using! 🤍</p>
-<p style="text-align:center;color:#555;font-size:12px">© 2026 Machn Education</p>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo">📚 Machn <span>Education</span></div>
+    <button class="nav-btn active" data-cat="Subject">📘 Subject</button>
+    <button class="nav-btn" data-cat="Short Note">📝 Short Note</button>
+    <button class="nav-btn" data-cat="Papers">📄 Papers</button>
+  </aside>
+  <main class="main">
+    <header class="top"><h2>Education Dashboard</h2><span class="storage-pill">☁️ Cloud - Everyone can see</span></header>
+    <section class="hero"><h1>Welcome to Tharu Education 👋</h1><p>All documents are saved on Cloud. Everyone can view and download any file.</p></section>
+    <section class="stats">
+      <div class="stat"><p>Total Documents</p><strong id="total">0</strong></div>
+      <div class="stat"><p>Categories</p><strong>03</strong></div>
+      <div class="stat"><p>Storage</p><strong>Cloud</strong></div>
+    </section>
+    <h3 class="heading">📂 Categories</h3>
+    <section class="categories">
+      <div class="category selected" data-cat="Subject"><div class="emoji">📘</div><h3>Subject</h3><p id="count-Subject">0 documents</p></div>
+      <div class="category" data-cat="Short Note"><div class="emoji">📝</div><h3>Short Note</h3><p id="count-Short Note">0 documents</p></div>
+      <div class="category" data-cat="Papers"><div class="emoji">📄</div><h3>Papers</h3><p id="count-Papers">0 documents</p></div>
+    </section>
+    <h3 class="heading" id="categoryTitle">📘 Subject Documents</h3>
+    <div class="toolbar">
+      <input class="search" id="search" type="search" placeholder="🔍 Search documents...">
+      <button class="upload" id="uploadBtn">＋ Upload Documents</button>
+      <input id="fileInput" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png">
+    </div>
+    <div id="notice" class="notice" role="status"></div>
+    <div class="file-list" id="fileList"><div class="empty">Loading Cloud...</div></div>
+   <div style="width:calc(100% + 56px); margin-left:-28px; margin-right:-28px; margin-top:25px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.3); border-left:0; border-right:0; padding:28px; color:white; box-sizing:border-box;">
+  <h3 style="margin:0; font-size:24px;">Contact Me</h3>
+  <div style="display:flex; gap:18px; margin-top:16px; align-items:center;">
+    <a href="https://wa.me/94776399895?text=Hyy%20Tharusha%F0%9F%91%8B%F0%9F%91%8B%20I%20came%20from%20your%20website%20%F0%9F%A4%8D" target="_blank">
+      <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" width="60" height="60" style="border-radius:50%; display:block;">
+    </a>
+    <a href="https://www.facebook.com/share/1A7HmEEpS7/" target="_blank">
+      <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" width="60" height="60" style="border-radius:50%; display:block;">
+    </a>
+  </div>
+  <p style="margin:16px 0 0; color:#aab4cc; font-size:14px;">Thank you for using! 🤍</p>
+</div> 
+    <div class="footer">© 2026 Machn Education</div>
+  </main>
 </div>
-
-<div id="viewer">
-<button onclick="closeViewer()" style="background:#ff4757;margin-bottom:10px">✖ Close View</button>
-<iframe id="viewFrame" src=""></iframe>
-</div>
+<nav class="mobile-nav">
+  <button class="active" data-cat="Subject">📘<span>Subject</span></button>
+  <button data-cat="Short Note">📝<span>Short Note</span></button>
+  <button data-cat="Papers">📄<span>Papers</span></button>
+</nav>
+<button class="admin-btn" id="adminBtn">🔒</button>
+<div id="viewer"><button onclick="closeViewer()" style="background:#ff4757;margin-bottom:10px;padding:10px 15px;border:0;border-radius:8px;color:#fff;font-weight:bold">✖ Close View</button><iframe id="viewFrame" src=""></iframe></div>
 
 <script>
-let rainBox=document.getElementById("rainBox");
-for(let i=0;i<70;i++){ let d=document.createElement("div"); d.className="rain"; d.style.left=Math.random()*100+"vw"; d.style.animationDuration=(0.5+Math.random()*0.7)+"s"; d.style.animationDelay=Math.random()*2+"s"; d.style.opacity=0.2+Math.random()*0.5; rainBox.appendChild(d); }
+"use strict";
+// ===== CLOUD SETTINGS =====
 const USER="wishadaone123", REPO="Machn-education";
-let allFiles=[], currentCat="Papers", isAdmin=false;
-if(location.search.includes("admin=1")){ isAdmin=true; document.getElementById("adminBox").style.display="block"; let t=localStorage.getItem("gh_token"); if(!t){ t=prompt("Admin Token eka danna:"); if(t) localStorage.setItem("gh_token",t); } }
-function showUpload(){ if(!isAdmin){ alert("Admin witharai! Link eke agata ?admin=1 danna"); return; } document.getElementById("adminBox").style.display="block"; }
-function changeToken(){ let t=prompt("Aluth Token eka danna:"); if(t){ localStorage.setItem("gh_token",t); alert("Token maru kala!"); } }
-function setCat(c){ currentCat=c; document.querySelectorAll(".cat").forEach(e=>e.classList.remove("active")); document.getElementById("cat-"+c).classList.add("active"); document.getElementById("catTitle").innerText=(c=="Papers"?"📄 ":c=="Subject"?"📘 ":"📝 ")+c+" Documents"; render(); }
-function openView(url){ document.getElementById("viewFrame").src=url; document.getElementById("viewer").style.display="block"; }
-function closeViewer(){ document.getElementById("viewer").style.display="none"; document.getElementById("viewFrame").src=""; }
-async function load(){
-  try{ allFiles=[]; for(let folder of ["Papers","Subject","Short Note"]){ const r=await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(folder)}?t=${Date.now()}`); if(!r.ok) continue; const files=await r.json(); if(Array.isArray(files)){ files.filter(f=>f.name.toLowerCase().endsWith(".pdf")).forEach(f=>{ allFiles.push({name:f.name,cat:folder,download_url:f.download_url,sha:f.sha,path:f.path}); }); } }
-    document.getElementById("totalCount").innerText=allFiles.length;
-    for(let c of ["Subject","Short Note","Papers"]){ document.getElementById("c-"+c).innerText=allFiles.filter(f=>f.cat==c).length+" documents"; } render(); }catch(e){ document.getElementById("list").innerHTML="<p>Loading failed.</p>"; }
+const ADMIN_PASSWORD="tharu123";
+let documents=[], currentCategory="Subject", isAdmin=false;
+const $=id=>document.getElementById(id);
+const iconMap={pdf:"📕",doc:"📘",docx:"📘",ppt:"📙",pptx:"📙",jpg:"🖼️",jpeg:"🖼️",png:"🖼️"};
+function showNotice(m,t="info"){const el=$("notice");el.textContent=m;el.className="notice show "+t;}
+function hideNotice(){$("notice").className="notice";}
+function sizeText(b){if(b<1024)return b+" B";if(b<1048576)return (b/1024).toFixed(1)+" KB";return (b/1048576).toFixed(2)+" MB";}
+function openView(url){$("viewFrame").src=url;$("viewer").style.display="block";}
+function closeViewer(){$("viewer").style.display="none";$("viewFrame").src="";}
+
+// LOAD FROM CLOUD (GitHub)
+async function loadCloud(){
+  try{
+    documents=[];
+    for(let folder of ["Subject","Short Note","Papers"]){
+      const r=await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(folder)}?t=${Date.now()}`);
+      if(!r.ok) continue;
+      const files=await r.json();
+      if(Array.isArray(files)){
+        files.forEach(f=>{
+          const ext=f.name.split(".").pop().toLowerCase();
+          if(["pdf","doc","docx","ppt","pptx","jpg","jpeg","png"].includes(ext)){
+            documents.push({name:f.name, category:folder, download_url:f.download_url, sha:f.sha, path:f.path, size:f.size||0, date:"Cloud"});
+          }
+        });
+      }
+    }
+    render();
+  }catch(e){ $("fileList").innerHTML=`<div class="empty">Cloud load failed. Refresh karanna.</div>`; }
 }
 function render(){
-  let q=document.getElementById("search").value.toLowerCase();
-  let list=allFiles.filter(f=>f.cat==currentCat && f.name.toLowerCase().includes(q));
-  if(list.length==0){ document.getElementById("list").innerHTML=`<div style="text-align:center;padding:30px;border:1px dashed #444;border-radius:12px">📂 No documents in this category yet.</div>`; return; }
-  document.getElementById("list").innerHTML=list.map(f=>{ let del=isAdmin?`<button onclick="delFile('${f.path}','${f.sha}','${f.name}')" style="background:#ff4757">Delete</button>`:""; return `<div class="card"><div><b>${f.name}</b><br><small>${f.cat}</small></div><div><button onclick="openView('${f.download_url}')">View</button> <a href="${f.download_url}" target="_blank"><button style="background:#00b894">Download</button></a> ${del}</div></div>`; }).join("");
+  const list=$("fileList"), q=$("search").value.trim().toLowerCase();
+  $("total").textContent=documents.length;
+  ["Subject","Short Note","Papers"].forEach(cat=>{ $("count-"+cat).textContent=documents.filter(d=>d.category===cat).length+" documents"; });
+  const filtered=documents.filter(d=>d.category===currentCategory && d.name.toLowerCase().includes(q));
+  list.replaceChildren();
+  if(!filtered.length){ const e=document.createElement("div"); e.className="empty"; e.textContent=q?"No matching documents.":"📂 No documents in this category yet."; list.appendChild(e); return; }
+  filtered.forEach(d=>{
+    const row=document.createElement("div"); row.className="file";
+    const ext=(d.name.split(".").pop()||"").toLowerCase();
+    const icon=document.createElement("div"); icon.className="file-icon"; icon.textContent=iconMap[ext]||"📁";
+    const info=document.createElement("div"); info.className="file-info";
+    const name=document.createElement("strong"); name.textContent=d.name;
+    const meta=document.createElement("small"); meta.textContent=sizeText(d.size)+" • "+d.category+" • ☁️ Cloud";
+    info.append(name,meta);
+    const actions=document.createElement("div"); actions.className="actions";
+    const view=document.createElement("button"); view.className="action"; view.textContent="👁 View"; view.onclick=()=>openView(d.download_url);
+    const down=document.createElement("a"); down.href=d.download_url; down.target="_blank"; down.innerHTML=`<button class="action">⬇ Download</button>`;
+    actions.append(view,down);
+    if(isAdmin){
+      const del=document.createElement("button"); del.className="action delete"; del.textContent="✕ Delete";
+      del.onclick=async()=>{ if(!confirm("Delete "+d.name+"?")) return; const token=localStorage.getItem("gh_token"); const res=await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(d.path)}`,{method:"DELETE",headers:{Authorization:"token "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"delete "+d.name,sha:d.sha})}); if(res.ok){ showNotice("Deleted ✅","success"); loadCloud(); } else showNotice("Delete Failed! Token check karanna","error"); };
+      actions.append(del);
+    }
+    row.append(icon,info,actions); list.appendChild(row);
+  });
 }
-load();
-async function upload(){
-  const file=document.getElementById("fileInput").files[0]; const cat=document.getElementById("catSel").value; const token=localStorage.getItem("gh_token");
-  if(!file) return alert("PDF ekak select karanna"); if(!token) return alert("Token na!");
-  document.getElementById("status").innerText="Uploading... ⏳"; const fileName=file.name.replace(/ /g,"_");
-  const reader=new FileReader();
-  reader.onload=async()=>{ const base64=reader.result.split(",")[1]; const res=await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(cat)}/${encodeURIComponent(fileName)}`,{method:"PUT",headers:{Authorization:"token "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"upload "+fileName,content:base64})}); if(res.ok){ document.getElementById("status").innerText="✅ Uploaded!"; setTimeout(load,2000); } else{ document.getElementById("status").innerText="❌ Failed!"; document.getElementById("errBox").style.display="block"; document.getElementById("errBox").innerText="Fail: "+fileName+" - Token eka waradi!"; } };
-  reader.readAsDataURL(file);
+function chooseCategory(cat){
+  currentCategory=cat;
+  document.querySelectorAll("[data-cat]").forEach(el=>{ el.classList.toggle("active",el.dataset.cat===cat); if(el.classList.contains("category")) el.classList.toggle("selected",el.dataset.cat===cat); });
+  const symbols={"Subject":"📘","Short Note":"📝","Papers":"📄"};
+  $("categoryTitle").textContent=symbols[cat]+" "+cat+" Documents"; $("search").value=""; hideNotice(); render();
 }
-async function delFile(path,sha,name){
-  if(!confirm(name+" delete karanda da?")) return; const token=localStorage.getItem("gh_token");
-  const res=await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(path)}`,{method:"DELETE",headers:{Authorization:"token "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"delete "+name,sha:sha})});
-  if(res.ok){ alert("✅ Deleted!"); load(); } else{ alert("❌ Delete Failed!"); }
+document.querySelectorAll("[data-cat]").forEach(el=>el.addEventListener("click",()=>chooseCategory(el.dataset.cat)));
+$("search").addEventListener("input",render);
+
+// ADMIN UNLOCK
+function unlockAdmin(){
+  const p=prompt("Admin Password:");
+  if(p===ADMIN_PASSWORD){
+    isAdmin=true; $("adminBtn").textContent="🔓";
+    let t=localStorage.getItem("gh_token");
+    if(!t){ t=prompt("GitHub Token eka danna (1 parai):"); if(t) localStorage.setItem("gh_token",t); }
+    showNotice("Admin unlocked! ✅ Dan Upload / Delete karanna puluwan","success");
+    render();
+  } else if(p!==null){ alert("Wrong password!"); }
 }
+$("adminBtn").addEventListener("click",unlockAdmin);
+if(location.search.includes("admin=1")){ setTimeout(unlockAdmin,500); }
+
+// UPLOAD TO CLOUD
+$("uploadBtn").addEventListener("click",()=>{
+  if(!isAdmin){ unlockAdmin(); return; }
+  $("fileInput").click();
+});
+$("fileInput").addEventListener("change", async e=>{
+  const files=Array.from(e.target.files||[]); e.target.value=""; if(!files.length) return;
+  const token=localStorage.getItem("gh_token"); if(!token){ alert("Token na! 🔒 button eka click karanna"); return; }
+  $("uploadBtn").disabled=true; showNotice("Uploading to Cloud... ⏳","info");
+  for(const file of files){
+    const fileName=file.name.replace(/ /g,"_");
+    const reader=new FileReader();
+    await new Promise(res=>{
+      reader.onload=async()=>{
+        const base64=reader.result.split(",")[1];
+        const r=await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(currentCategory)}/${encodeURIComponent(fileName)}`,{method:"PUT",headers:{Authorization:"token "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"upload "+fileName,content:base64})});
+        if(!r.ok) showNotice("Upload Failed: "+fileName+" - Token check karanna","error");
+        res();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  $("uploadBtn").disabled=false; showNotice("✅ Uploaded to Cloud!","success"); loadCloud();
+});
+loadCloud();
+
+// WAHI - SOFT 55
+const canvas=document.getElementById('rainCanvas'); const ctx=canvas.getContext('2d'); let drops=[];
+function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+window.addEventListener('resize',resize); resize();
+for(let i=0;i<55;i++){ drops.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,len:10+Math.random()*12,speed:4+Math.random()*4,opacity:0.08+Math.random()*0.15}); }
+function rain(){ ctx.clearRect(0,0,canvas.width,canvas.height); ctx.lineWidth=1; ctx.lineCap='round'; drops.forEach(d=>{ ctx.strokeStyle=`rgba(174,194,224,${d.opacity})`; ctx.beginPath(); ctx.moveTo(d.x,d.y); ctx.lineTo(d.x-2,d.y+d.len); ctx.stroke(); d.y+=d.speed; d.x-=0.5; if(d.y>canvas.height){d.y=-20;d.x=Math.random()*canvas.width;} }); requestAnimationFrame(rain); }
+rain();
 </script>
 </body>
 </html>
