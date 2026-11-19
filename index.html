@@ -94,6 +94,8 @@ button,input{font:inherit}button{cursor:pointer}
 const DB_NAME="MachnEducationDB_v2";
 const STORE_NAME="documents";
 const MAX_FILE_SIZE=100*1024*1024;
+const GITHUB_USER="wishadaone123";
+const GITHUB_REPO="Machn-education";
 let db=null, documents=[], currentCategory="Subject";
 const iconMap={pdf:"📕",doc:"📘",docx:"📘",ppt:"📙",pptx:"📙",jpg:"🖼️",jpeg:"🖼️",png:"🖼️"};
 const $=id=>document.getElementById(id);
@@ -105,9 +107,35 @@ function getFiles(){return new Promise((resolve,reject)=>{const tx=db.transactio
 function removeFile(id){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,"readwrite");tx.objectStore(STORE_NAME).delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}
 function readableError(error){if(error && (error.name==="QuotaExceededError"))return "Storage is full.";return (error && error.message) ? error.message : "Error occurred.";}
 function sizeText(bytes){if(bytes<1024)return bytes+" B";if(bytes<1048576)return (bytes/1024).toFixed(1)+" KB";return (bytes/1048576).toFixed(2)+" MB";}
-async function loadCloudDocs(){try{const r=await fetch('documents.json');if(!r.ok)return[];const j=await r.json();return j.map((d,i)=>({id:'cloud-'+i,name:d.name,category:d.category,size:0,date:(d.subject||'')+' • Grade '+(d.grade||'')+' • '+(d.year||''),savedAt:Date.now(),isCloud:true,cloudUrl:d.url}));}catch(e){return[];}}
+function guessCategory(name,path){const n=(name+" "+path).toLowerCase();if(n.includes("paper"))return "Papers";if(n.includes("note")||n.includes("short"))return "Short Note";return "Subject";}
+async function loadCloudDocs(){
+  let out=[];
+  try{
+    const r=await fetch('documents.json');if(r.ok){const j=await r.json();j.forEach((d,i)=>{out.push({id:'cloud-json-'+i,name:d.name,category:d.category||guessCategory(d.name,""),size:0,date:(d.subject||'')+' • Grade '+(d.grade||'')+' • '+(d.year||''),savedAt:Date.now(),isCloud:true,cloudUrl:d.url});});}
+  }catch(e){}
+  try{
+    const folders=["","Papers","Subject","Short Note","papers","subject","notes"];
+    for(const f of folders){
+      try{
+        const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${f}`;
+        const r=await fetch(url);if(!r.ok)continue;const list=await r.json();if(!Array.isArray(list))continue;
+        list.forEach((file,i)=>{
+          if(file.type!=="file")return;
+          const lower=file.name.toLowerCase();
+          if(!(lower.endsWith(".pdf")||lower.endsWith(".doc")||lower.endsWith(".docx")||lower.endsWith(".ppt")||lower.endsWith(".pptx")||lower.endsWith(".jpg")||lower.endsWith(".jpeg")||lower.endsWith(".png")))return;
+          if(file.name==="index.html")return;
+          const fullPath=f?f+"/"+file.name:file.name;
+          if(out.some(o=>o.cloudUrl===file.download_url))return;
+          if(out.some(o=>o.name===file.name&&o.isCloud))return;
+          out.push({id:'cloud-gh-'+fullPath,name:file.name,category:f==="Papers"||f==="papers"?"Papers":f==="Short Note"||f==="notes"?"Short Note":f==="Subject"||f==="subject"?"Subject":guessCategory(file.name,fullPath),size:file.size||0,date:"GitHub • "+fullPath,savedAt:Date.now(),isCloud:true,cloudUrl:file.download_url});
+        });
+      }catch(e){}
+    }
+  }catch(e){}
+  return out;
+}
 async function refresh(){const local=await getFiles();const cloud=await loadCloudDocs();documents=[...cloud,...local];render();}
-function render(){const list=$("fileList"),q=$("search").value.trim().toLowerCase();$("total").textContent=documents.length;["Subject","Short Note","Papers"].forEach(cat=>{$("count-"+cat).textContent=documents.filter(d=>d.category===cat).length+" documents";});const filtered=documents.filter(d=>d.category===currentCategory && d.name.toLowerCase().includes(q)).sort((a,b)=>b.savedAt-a.savedAt);list.replaceChildren();if(!filtered.length){const empty=document.createElement("div");empty.className="empty";empty.textContent=q?"No matching documents.":"📂 No documents in this category yet. Use Upload Documents to add files.";list.appendChild(empty);return;}filtered.forEach(d=>{const row=document.createElement("div");row.className="file";const ext=(d.name.split(".").pop()||"").toLowerCase();const icon=document.createElement("div");icon.className="file-icon";icon.textContent=iconMap[ext]||"📁";const info=document.createElement("div");info.className="file-info";const name=document.createElement("strong");name.textContent=d.name;const meta=document.createElement("small");meta.textContent=sizeText(d.size)+" • "+d.date;info.append(name,meta);const actions=document.createElement("div");actions.className="actions";const down=document.createElement("button");down.className="action";down.textContent="⬇ Download";down.addEventListener("click",()=>{if(d.isCloud&&d.cloudUrl){window.open(d.cloudUrl,'_blank');return;}const url=URL.createObjectURL(d.blob);const a=document.createElement("a");a.href=url;a.download=d.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);});const del=document.createElement("button");del.className="action delete";del.textContent="✕ Delete";del.addEventListener("click",async()=>{if(d.isCloud){showNotice("Cloud papers can only be deleted from documents.json in GitHub.","info");return;}if(!confirm("Delete "+d.name+"?"))return;try{await removeFile(d.id);await refresh();showNotice("Deleted.","success");}catch(e){showNotice(readableError(e),"error");}});actions.append(down,del);row.append(icon,info,actions);list.appendChild(row);});}
+function render(){const list=$("fileList"),q=$("search").value.trim().toLowerCase();$("total").textContent=documents.length;["Subject","Short Note","Papers"].forEach(cat=>{$("count-"+cat).textContent=documents.filter(d=>d.category===cat).length+" documents";});const filtered=documents.filter(d=>d.category===currentCategory && d.name.toLowerCase().includes(q)).sort((a,b)=>b.savedAt-a.savedAt);list.replaceChildren();if(!filtered.length){const empty=document.createElement("div");empty.className="empty";empty.textContent=q?"No matching documents.":"📂 No documents in this category yet.";list.appendChild(empty);return;}filtered.forEach(d=>{const row=document.createElement("div");row.className="file";const ext=(d.name.split(".").pop()||"").toLowerCase();const icon=document.createElement("div");icon.className="file-icon";icon.textContent=iconMap[ext]||"📁";const info=document.createElement("div");info.className="file-info";const name=document.createElement("strong");name.textContent=d.name;const meta=document.createElement("small");meta.textContent=(d.isCloud?"☁️ Cloud • ":"")+sizeText(d.size)+" • "+d.date;info.append(name,meta);const actions=document.createElement("div");actions.className="actions";const view=document.createElement("button");view.className="action";view.textContent="👁 View";view.addEventListener("click",()=>{if(d.isCloud&&d.cloudUrl){window.open(d.cloudUrl,'_blank');return;}const url=URL.createObjectURL(d.blob);window.open(url,'_blank');setTimeout(()=>URL.revokeObjectURL(url),60000);});const down=document.createElement("button");down.className="action";down.textContent="⬇ Download";down.addEventListener("click",()=>{if(d.isCloud&&d.cloudUrl){const a=document.createElement("a");a.href=d.cloudUrl;a.download=d.name;a.target="_blank";document.body.appendChild(a);a.click();a.remove();return;}const url=URL.createObjectURL(d.blob);const a=document.createElement("a");a.href=url;a.download=d.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);});const del=document.createElement("button");del.className="action delete";del.textContent="✕ Delete";del.addEventListener("click",async()=>{if(d.isCloud){showNotice("Cloud file eka delete karanna GitHub eken delete karanna.","info");return;}if(!confirm("Delete "+d.name+"?"))return;try{await removeFile(d.id);await refresh();showNotice("Deleted.","success");}catch(e){showNotice(readableError(e),"error");}});actions.append(view,down,del);row.append(icon,info,actions);list.appendChild(row);});}
 function chooseCategory(cat){currentCategory=cat;document.querySelectorAll("[data-cat]").forEach(el=>{el.classList.toggle("active",el.dataset.cat===cat);if(el.classList.contains("category"))el.classList.toggle("selected",el.dataset.cat===cat);});const symbols={"Subject":"📘","Short Note":"📝","Papers":"📄"};$("categoryTitle").textContent=symbols[cat]+" "+cat+" Documents";$("search").value="";hideNotice();render();}
 document.querySelectorAll("[data-cat]").forEach(el=>el.addEventListener("click",()=>chooseCategory(el.dataset.cat)));
 $("search").addEventListener("input",render);
@@ -146,4 +174,4 @@ document.getElementById("adminBtn").addEventListener("click",()=>{
 });
 </script>
 </body>
-                                                                                                                                                                                                                                                                                                                                                                               </html>
+                                                                     </html>
