@@ -22,9 +22,10 @@ button,input{font:inherit}button{cursor:pointer}
 .stat p,.category p{font-size:12px;color:var(--muted);margin:0 0 9px}.stat strong{font-size:23px}
 .heading{font-size:19px;margin:0 0 14px}.category{cursor:pointer;transition:.15s}.category:hover{border-color:#8057f5;transform:translateY(-2px)}
 .category.selected{border-color:#986bff;background:#241d43}.emoji{font-size:25px;margin-bottom:10px}.category h3{font-size:15px;margin:0 0 8px}
-.toolbar{display:flex;gap:10px;margin-bottom:16px}.search{flex:1;min-width:0;padding:13px 14px;border-radius:10px;border:1px solid #34415e;background:var(--panel);color:#fff;outline:none}
+.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}.search{flex:1;min-width:180px;padding:13px 14px;border-radius:10px;border:1px solid #34415e;background:var(--panel);color:#fff;outline:none}
 .search:focus{border-color:#986bff}.upload{display:none;border:0;border-radius:10px;padding:13px 17px;background:var(--purple);color:#fff;font-weight:700}
-.upload.show{display:block}
+.upload.show{display:block}.token-btn{display:none;border:1px solid #34415e;border-radius:10px;padding:13px 12px;background:var(--panel2);color:#fff;font-size:13px}
+.token-btn.show{display:block}
 .admin-btn{position:fixed;bottom:15px;right:15px;width:38px;height:38px;border-radius:50%;background:#1b2945;border:1px solid #34415e;color:#fff;z-index:1000;opacity:.6}
 .upload:disabled{opacity:.55;cursor:wait}#fileInput{display:none}
 .notice{display:none;padding:12px 14px;margin:0 0 15px;border-radius:10px;font-size:13px;line-height:1.5}
@@ -36,7 +37,7 @@ button,input{font:inherit}button{cursor:pointer}
 .footer{text-align:center;color:#74819c;font-size:11px;margin-top:32px}
 .mobile-nav{display:none}
 @media(max-width:800px){.sidebar{display:none}.main{padding:20px 14px 92px}.mobile-nav{display:flex;position:fixed;z-index:5;bottom:0;left:0;right:0;background:#10182b;border-top:1px solid var(--line);justify-content:space-around;padding:10px 4px calc(10px + env(safe-area-inset-bottom))}.mobile-nav button{border:0;background:none;color:var(--muted);font-size:11px;display:flex;flex-direction:column;gap:5px;align-items:center}.mobile-nav button.active{color:#c1aaff}}
-@media(max-width:520px){.hero{padding:21px}.hero h1{font-size:23px}.stats,.categories{gap:7px}.stat,.category{padding:11px 8px}.stat strong{font-size:18px}.stat p,.category p{font-size:10px}.category h3{font-size:12px}.emoji{font-size:22px}.toolbar{flex-wrap:wrap}.search,.upload{width:100%;flex-basis:100%}.file{flex-wrap:wrap;padding:12px}.file-info{width:calc(100% - 45px)}.actions{width:100%;padding-left:36px}.top h2{font-size:17px}.storage-pill{font-size:10px}}
+@media(max-width:520px){.hero{padding:21px}.hero h1{font-size:23px}.stats,.categories{gap:7px}.stat,.category{padding:11px 8px}.stat strong{font-size:18px}.stat p,.category p{font-size:10px}.category h3{font-size:12px}.emoji{font-size:22px}.toolbar{flex-wrap:wrap}.search,.upload,.token-btn{width:100%;flex-basis:100%}.file{flex-wrap:wrap;padding:12px}.file-info{width:calc(100% - 45px)}.actions{width:100%;padding-left:36px}.top h2{font-size:17px}.storage-pill{font-size:10px}}
 </style>
 </head>
 <body>
@@ -64,8 +65,9 @@ button,input{font:inherit}button{cursor:pointer}
     <h3 class="heading" id="categoryTitle">📘 Subject Documents</h3>
     <div class="toolbar">
       <input class="search" id="search" type="search" placeholder="🔍 Search documents...">
-      <button class="upload" id="uploadBtn">＋ Upload Documents</button>
-      <input id="fileInput" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png">
+      <button class="upload" id="uploadBtn">＋ Upload Any File</button>
+      <button class="token-btn" id="tokenBtn">🔑 Change Token</button>
+      <input id="fileInput" type="file" multiple>
     </div>
     <div id="notice" class="notice" role="status"></div>
     <div class="file-list" id="fileList"><div class="empty">Loading documents…</div></div>
@@ -95,8 +97,19 @@ const GITHUB_USER="wishadaone123";
 const GITHUB_REPO="Machn-education";
 let BRANCH="main";
 let documents=[], currentCategory="Subject", isAdmin=false;
-const iconMap={pdf:"📕",doc:"📘",docx:"📘",ppt:"📙",pptx:"📙",jpg:"🖼️",jpeg:"🖼️",png:"🖼️"};
 const $=id=>document.getElementById(id);
+function iconFor(name){
+  const ext=(name.split(".").pop()||"").toLowerCase();
+  if(["pdf"].includes(ext))return "📕";
+  if(["doc","docx","txt","rtf"].includes(ext))return "📘";
+  if(["ppt","pptx"].includes(ext))return "📙";
+  if(["xls","xlsx","csv"].includes(ext))return "📗";
+  if(["jpg","jpeg","png","gif","webp","heic"].includes(ext))return "🖼️";
+  if(["mp4","mov","mkv","webm"].includes(ext))return "🎬";
+  if(["mp3","wav","m4a"].includes(ext))return "🎵";
+  if(["zip","rar","7z"].includes(ext))return "🗜️";
+  return "📁";
+}
 function showNotice(m,t="info"){const el=$("notice");el.textContent=m;el.className="notice show "+t;}
 function hideNotice(){$("notice").className="notice";}
 function sizeText(b){if(b<1024)return b+" B";if(b<1048576)return (b/1024).toFixed(1)+" KB";return (b/1048576).toFixed(2)+" MB";}
@@ -113,13 +126,13 @@ function guessCategory(name,path){
   if(n.includes("short")||n.includes("note"))return "Short Note";
   return "Subject";
 }
-function getToken(){return localStorage.getItem("gh_token")||"";}
-function askToken(){
-  let t=prompt("GitHub Token eka danna (ghp_...):");
+function getToken(){return (localStorage.getItem("gh_token")||"").trim();}
+function askToken(force){
+  let t=prompt("GitHub Token eka danna (ghp_...):\nToken eka nathnam github.com/settings/tokens gihin hadaganna - repo tick karanna!");
   if(t){t=t.trim();localStorage.setItem("gh_token",t);return t;}
   return "";
 }
-// --- AUTO DETECT BRANCH - main da master da kiyala ---
+function clearToken(){localStorage.removeItem("gh_token");}
 async function detectBranch(){
   try{
     const r=await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}`);
@@ -143,8 +156,10 @@ async function loadCloudDocs(){
       (j.tree||[]).forEach((file)=>{
         if(file.type!=="blob")return;
         const lower=file.path.toLowerCase();
-        if(!(lower.endsWith(".pdf")||lower.endsWith(".doc")||lower.endsWith(".docx")||lower.endsWith(".ppt")||lower.endsWith(".pptx")||lower.endsWith(".jpg")||lower.endsWith(".jpeg")||lower.endsWith(".png")))return;
+        // ONA FILE EKAK PENNANNA - index.html, .gitignore witharai ain karanne
         if(file.path==="index.html")return;
+        if(lower.endsWith(".md")||lower.endsWith(".json")||lower.startsWith(".git"))return;
+        if(lower.endsWith(".html")||lower.endsWith(".css")||lower.endsWith(".js"))return;
         const name=file.path.split("/").pop();
         const folder=file.path.includes("/")?file.path.split("/").slice(0,-1).join("/"): "";
         const cat=folder?folderToCategory(folder):null;
@@ -167,8 +182,7 @@ function render(){
   if(!filtered.length){const e=document.createElement("div");e.className="empty";e.textContent=q?"No matching documents.":"📂 No documents in this category yet.";list.appendChild(e);return;}
   filtered.forEach(d=>{
     const row=document.createElement("div");row.className="file";
-    const ext=(d.name.split(".").pop()||"").toLowerCase();
-    const icon=document.createElement("div");icon.className="file-icon";icon.textContent=iconMap[ext]||"📁";
+    const icon=document.createElement("div");icon.className="file-icon";icon.textContent=iconFor(d.name);
     const info=document.createElement("div");info.className="file-info";
     const name=document.createElement("strong");name.textContent=d.name;
     const meta=document.createElement("small");meta.textContent="☁️ Cloud • "+sizeText(d.size)+" • "+d.date;
@@ -196,16 +210,28 @@ function chooseCategory(cat){
 document.querySelectorAll("[data-cat]").forEach(el=>el.addEventListener("click",()=>chooseCategory(el.dataset.cat)));
 $("search").addEventListener("input",render);
 $("uploadBtn").addEventListener("click",()=>$("fileInput").click());
+$("tokenBtn").addEventListener("click",()=>{
+  clearToken();
+  const t=askToken(true);
+  if(t) showNotice("Aluth Token eka save una! Dan Upload karanna!","success");
+});
 function fileToBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});}
 async function uploadToGitHub(file,token){
   await detectBranch();
   const folder=currentCategory;
-  const cleanName=file.name.replace(/[^\w.\- ]/g,"").trim();
+  // File name eka safe karanawa - space, dot ok, wena special chars ain karanawa
+  const cleanName=file.name.replace(/[^\w.\- ()]/g,"").trim() || "file";
   const path=folder+"/"+cleanName;
   const content=await fileToBase64(file);
   const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path.split("/").map(s=>encodeURIComponent(s)).join("/")}`;
   const res=await fetch(url,{method:"PUT",headers:{"Authorization":"token "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"Upload "+cleanName,content:content,branch:BRANCH})});
-  if(!res.ok){const e=await res.json();throw new Error(e.message||"Upload failed - "+res.status);}
+  if(!res.ok){
+    const e=await res.json().catch(()=>({}));
+    let msg=e.message||("Upload failed - "+res.status);
+    // GitHub eke 404 = Token eka waradi / repo scope na kiyana eka!
+    if(res.status===404||msg.toLowerCase().includes("not found")) msg="Token eka waradi / repo tick karala na! Change Token obala aluth token ekak danna!";
+    throw new Error(msg);
+  }
   return true;
 }
 async function deleteFromGitHub(d){
@@ -216,18 +242,23 @@ async function deleteFromGitHub(d){
     const getR=await fetch(url,{headers:{"Authorization":"token "+token}});
     const getJ=await getR.json();
     const delR=await fetch(url,{method:"DELETE",headers:{"Authorization":"token "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"Delete "+d.name,sha:getJ.sha,branch:BRANCH})});
-    if(!delR.ok)throw new Error("Delete failed");
+    if(!delR.ok)throw new Error("Delete failed - Token eka check karanna");
     showNotice("Deleted!","success");await refresh();
   }catch(e){showNotice(e.message,"error");}
 }
 $("fileInput").addEventListener("change",async event=>{
   const files=Array.from(event.target.files||[]);event.target.value="";if(!files.length)return;
   let token=getToken();if(!token)token=askToken();if(!token){showNotice("Token eka nathuwa upload karanna ba.","error");return;}
-  $("uploadBtn").disabled=true;showNotice("Uploading to Cloud... Thawa tikak inna...","info");
+  $("uploadBtn").disabled=true;showNotice("Uploading "+files.length+" file(s) to Cloud... Thawa tikak inna...","info");
   let ok=0,fail=[];
   for(const file of files){
+    // 90MB walata wada loku file GitHub eke ba - eka check karanawa
+    if(file.size>90*1024*1024){fail.push(file.name+" - File eka loku wadi (90MB walata adu karanna)");continue;}
     try{await uploadToGitHub(file,token);ok++;}
-    catch(e){fail.push(file.name+" - "+e.message);if(e.message.toLowerCase().includes("bad credentials")){localStorage.removeItem("gh_token");break;}}
+    catch(e){
+      fail.push(file.name+" - "+e.message);
+      if(e.message.toLowerCase().includes("token")){clearToken();break;}
+    }
   }
   $("uploadBtn").disabled=false;
   if(fail.length)showNotice("Fail: "+fail.join("; "),"error");
@@ -263,7 +294,8 @@ document.getElementById("adminBtn").addEventListener("click",()=>{
   if(p===ADMIN_PASSWORD){
     isAdmin=true;
     document.getElementById("uploadBtn").classList.add("show");
-    alert("Admin unlocked! Dan Upload + Delete karanna puluwan!");
+    document.getElementById("tokenBtn").classList.add("show");
+    alert("Admin unlocked! Dan Upload + Delete + Change Token karanna puluwan!");
     render();
   } else if(p!==null){ alert("Wrong password!"); }
 });
