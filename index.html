@@ -48,12 +48,12 @@ button,input{font:inherit}button{cursor:pointer}
     <button class="nav-btn" data-cat="Papers">📄 Papers</button>
   </aside>
   <main class="main">
-    <header class="top"><h2>Education Dashboard</h2><span class="storage-pill">💾 Saved on this device</span></header>
-    <section class="hero"><h1>Welcome To Tharu Education 👋</h1><p>Upload and keep your learning documents saved in this browser on this device.</p></section>
+    <header class="top"><h2>Education Dashboard</h2><span class="storage-pill">☁️ Everyone can see</span></header>
+    <section class="hero"><h1>Welcome To Tharu Education 👋</h1><p>All documents here are visible to everyone. View and download any file.</p></section>
     <section class="stats">
       <div class="stat"><p>Total Documents</p><strong id="total">0</strong></div>
       <div class="stat"><p>Categories</p><strong>03</strong></div>
-      <div class="stat"><p>Storage</p><strong id="storageLabel">Device</strong></div>
+      <div class="stat"><p>Storage</p><strong>Cloud</strong></div>
     </section>
     <h3 class="heading">📂 Categories</h3>
     <section class="categories">
@@ -68,7 +68,7 @@ button,input{font:inherit}button{cursor:pointer}
       <input id="fileInput" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png">
     </div>
     <div id="notice" class="notice" role="status"></div>
-    <div class="file-list" id="fileList"><div class="empty">Opening your device storage…</div></div>
+    <div class="file-list" id="fileList"><div class="empty">Loading documents…</div></div>
  <div style="width:calc(100% + 56px); margin-left:-28px; margin-right:-28px; margin-top:25px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.3); border-left:0; border-right:0; padding:28px; color:white; box-sizing:border-box;">
   <h3 style="margin:0; font-size:24px;">Contact Me</h3>
   <div style="display:flex; gap:18px; margin-top:16px; align-items:center;">
@@ -91,60 +91,158 @@ button,input{font:inherit}button{cursor:pointer}
 </nav>
 <script>
 "use strict";
-const DB_NAME="MachnEducationDB_v2";
-const STORE_NAME="documents";
-const MAX_FILE_SIZE=100*1024*1024;
 const GITHUB_USER="wishadaone123";
 const GITHUB_REPO="Machn-education";
-let db=null, documents=[], currentCategory="Subject";
+const BRANCH="main";
+let documents=[], currentCategory="Subject";
 const iconMap={pdf:"📕",doc:"📘",docx:"📘",ppt:"📙",pptx:"📙",jpg:"🖼️",jpeg:"🖼️",png:"🖼️"};
 const $=id=>document.getElementById(id);
-function showNotice(message,type="info"){const el=$("notice");el.textContent=message;el.className="notice show "+type;}
-function hideNotice(){ $("notice").className="notice"; }
-function openDatabase(){return new Promise((resolve,reject)=>{if(!("indexedDB" in window)){reject(new Error("IndexedDB is unavailable."));return;}let request;try{request=indexedDB.open(DB_NAME,1);}catch(e){reject(e);return;}request.onupgradeneeded=event=>{const database=event.target.result;if(!database.objectStoreNames.contains(STORE_NAME)){const store=database.createObjectStore(STORE_NAME,{keyPath:"id",autoIncrement:true});store.createIndex("category","category",{unique:false});}};request.onsuccess=event=>{db=event.target.result;resolve(db);};request.onerror=()=>reject(request.error||new Error("Could not open storage."));});}
-function addFile(record){return new Promise((resolve,reject)=>{let tx;try{tx=db.transaction(STORE_NAME,"readwrite");}catch(e){reject(e);return;}tx.objectStore(STORE_NAME).add(record);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);});}
-function getFiles(){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,"readonly");const req=tx.objectStore(STORE_NAME).getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);});}
-function removeFile(id){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,"readwrite");tx.objectStore(STORE_NAME).delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}
-function readableError(error){if(error && (error.name==="QuotaExceededError"))return "Storage is full.";return (error && error.message) ? error.message : "Error occurred.";}
-function sizeText(bytes){if(bytes<1024)return bytes+" B";if(bytes<1048576)return (bytes/1024).toFixed(1)+" KB";return (bytes/1048576).toFixed(2)+" MB";}
-function folderToCategory(f){const x=f.toLowerCase().replace(/%20/g," ").replace(/[-_]/g," ").trim();if(x==="papers"||x==="paper")return "Papers";if(x==="short note"||x==="short notes"||x==="shortnote"||x==="notes"||x==="note")return "Short Note";if(x==="subject"||x==="subjects")return "Subject";return null;}
-function guessCategory(name,path){const n=(name+" "+path).toLowerCase();if(n.includes("paper"))return "Papers";if(n.includes("short")||n.includes("note"))return "Short Note";return "Subject";}
+function showNotice(m,t="info"){const el=$("notice");el.textContent=m;el.className="notice show "+t;}
+function hideNotice(){$("notice").className="notice";}
+function sizeText(b){if(b<1024)return b+" B";if(b<1048576)return (b/1024).toFixed(1)+" KB";return (b/1048576).toFixed(2)+" MB";}
+function folderToCategory(f){
+  const x=f.toLowerCase().replace(/%20/g," ").replace(/[-_]/g," ").trim();
+  if(x==="papers"||x==="paper")return "Papers";
+  if(x==="short note"||x==="short notes"||x==="shortnote"||x==="notes"||x==="note")return "Short Note";
+  if(x==="subject"||x==="subjects")return "Subject";
+  return null;
+}
+function guessCategory(name,path){
+  const n=(name+" "+path).toLowerCase();
+  if(n.includes("paper"))return "Papers";
+  if(n.includes("short")||n.includes("note"))return "Short Note";
+  return "Subject";
+}
+function getToken(){return localStorage.getItem("gh_token")||"";}
+function askToken(){
+  let t=prompt("GitHub Token eka danna (ghp_...). Eka parai ahanna:");
+  if(t){t=t.trim();localStorage.setItem("gh_token",t);return t;}
+  return "";
+}
+// --- LOAD ALL FILES FROM GITHUB - RECURSIVE, SO EVERY FOLDER WORKS ---
 async function loadCloudDocs(){
   let out=[];
+  // 1. documents.json eke thiyena ewa (kalin Maths paper 1 wage)
   try{
-    const r=await fetch('documents.json');if(r.ok){const j=await r.json();j.forEach((d,i)=>{out.push({id:'cloud-json-'+i,name:d.name,category:d.category||guessCategory(d.name,""),size:0,date:(d.subject||'')+' • Grade '+(d.grade||'')+' • '+(d.year||''),savedAt:Date.now(),isCloud:true,cloudUrl:d.url});});}
+    const r=await fetch('documents.json');if(r.ok){const j=await r.json();j.forEach((d,i)=>{out.push({id:'json-'+i,name:d.name,category:d.category||guessCategory(d.name,""),size:0,date:'Cloud • '+(d.subject||''),savedAt:Date.now(),cloudUrl:d.url,path:d.url});});}
   }catch(e){}
+  // 2. GitHub repo eke thiyena HAMA file ekama - tree API eken
   try{
-    const folders=["","Papers","Subject","Short Note","Short-Note","ShortNote","Notes","papers","subject","notes","short-note"];
+    const r=await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/${BRANCH}?recursive=1`);
+    if(r.ok){
+      const j=await r.json();
+      (j.tree||[]).forEach((file)=>{
+        if(file.type!=="blob")return;
+        const lower=file.path.toLowerCase();
+        if(!(lower.endsWith(".pdf")||lower.endsWith(".doc")||lower.endsWith(".docx")||lower.endsWith(".ppt")||lower.endsWith(".pptx")||lower.endsWith(".jpg")||lower.endsWith(".jpeg")||lower.endsWith(".png")))return;
+        if(file.path==="index.html")return;
+        const name=file.path.split("/").pop();
+        const folder=file.path.includes("/")?file.path.split("/").slice(0,-1).join("/"): "";
+        const cat=folder?folderToCategory(folder):null;
+        const finalCat=cat||guessCategory(name,file.path);
+        const url=`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/${encodeURIComponent(file.path).replace(/%2F/g,"/")}`;
+        if(out.some(o=>o.cloudUrl===url||o.name===name&&o.path===file.path))return;
+        out.push({id:'gh-'+file.path,name:name,category:finalCat,size:file.size||0,date:"GitHub • "+file.path,savedAt:Date.now(),cloudUrl:url,path:file.path,sha:file.sha});
+      });
+    }
+  }catch(e){}
+  // 3. Fallback - folders walin balanawa
+  if(out.length<=1){
+    const folders=["","Papers","Subject","Short Note","Short-Note","Notes"];
     for(const f of folders){
       try{
         const url=f?`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${encodeURIComponent(f)}`:`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`;
         const r=await fetch(url);if(!r.ok)continue;const list=await r.json();if(!Array.isArray(list))continue;
         list.forEach((file)=>{
           if(file.type!=="file")return;
-          const lower=file.name.toLowerCase();
-          if(!(lower.endsWith(".pdf")||lower.endsWith(".doc")||lower.endsWith(".docx")||lower.endsWith(".ppt")||lower.endsWith(".pptx")||lower.endsWith(".jpg")||lower.endsWith(".jpeg")||lower.endsWith(".png")))return;
-          if(file.name==="index.html")return;
-          const fullPath=f?f+"/"+file.name:file.name;
-          if(out.some(o=>o.cloudUrl===file.download_url))return;
-          if(out.some(o=>o.name===file.name&&o.cloudUrl))return;
-          const catFromFolder=f?folderToCategory(f):null;
-          const cat=catFromFolder||guessCategory(file.name,fullPath);
-          out.push({id:'cloud-gh-'+fullPath,name:file.name,category:cat,size:file.size||0,date:"GitHub • "+fullPath,savedAt:Date.now(),isCloud:true,cloudUrl:file.download_url});
+          if(!file.name.toLowerCase().endsWith(".pdf"))return;
+          if(out.some(o=>o.name===file.name))return;
+          out.push({id:'gh2-'+file.name,name:file.name,category:f?folderToCategory(f)||guessCategory(file.name,f):guessCategory(file.name,""),size:file.size||0,date:"GitHub • "+file.name,savedAt:Date.now(),cloudUrl:file.download_url,path:file.name});
         });
       }catch(e){}
     }
-  }catch(e){}
+  }
   return out;
 }
-async function refresh(){const local=await getFiles();const cloud=await loadCloudDocs();documents=[...cloud,...local];render();}
-function render(){const list=$("fileList"),q=$("search").value.trim().toLowerCase();$("total").textContent=documents.length;["Subject","Short Note","Papers"].forEach(cat=>{$("count-"+cat).textContent=documents.filter(d=>d.category===cat).length+" documents";});const filtered=documents.filter(d=>d.category===currentCategory && d.name.toLowerCase().includes(q)).sort((a,b)=>b.savedAt-a.savedAt);list.replaceChildren();if(!filtered.length){const empty=document.createElement("div");empty.className="empty";empty.textContent=q?"No matching documents.":"📂 No documents in this category yet.";list.appendChild(empty);return;}filtered.forEach(d=>{const row=document.createElement("div");row.className="file";const ext=(d.name.split(".").pop()||"").toLowerCase();const icon=document.createElement("div");icon.className="file-icon";icon.textContent=iconMap[ext]||"📁";const info=document.createElement("div");info.className="file-info";const name=document.createElement("strong");name.textContent=d.name;const meta=document.createElement("small");meta.textContent=(d.isCloud?"☁️ Cloud • ":"")+sizeText(d.size)+" • "+d.date;info.append(name,meta);const actions=document.createElement("div");actions.className="actions";const view=document.createElement("button");view.className="action";view.textContent="👁 View";view.addEventListener("click",()=>{if(d.isCloud&&d.cloudUrl){window.open(d.cloudUrl,'_blank');return;}const url=URL.createObjectURL(d.blob);window.open(url,'_blank');setTimeout(()=>URL.revokeObjectURL(url),60000);});const down=document.createElement("button");down.className="action";down.textContent="⬇ Download";down.addEventListener("click",()=>{if(d.isCloud&&d.cloudUrl){const a=document.createElement("a");a.href=d.cloudUrl;a.download=d.name;a.target="_blank";document.body.appendChild(a);a.click();a.remove();return;}const url=URL.createObjectURL(d.blob);const a=document.createElement("a");a.href=url;a.download=d.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);});const del=document.createElement("button");del.className="action delete";del.textContent="✕ Delete";del.addEventListener("click",async()=>{if(d.isCloud){showNotice("Cloud file eka delete karanna GitHub eken delete karanna.","info");return;}if(!confirm("Delete "+d.name+"?"))return;try{await removeFile(d.id);await refresh();showNotice("Deleted.","success");}catch(e){showNotice(readableError(e),"error");}});actions.append(view,down,del);row.append(icon,info,actions);list.appendChild(row);});}
-function chooseCategory(cat){currentCategory=cat;document.querySelectorAll("[data-cat]").forEach(el=>{el.classList.toggle("active",el.dataset.cat===cat);if(el.classList.contains("category"))el.classList.toggle("selected",el.dataset.cat===cat);});const symbols={"Subject":"📘","Short Note":"📝","Papers":"📄"};$("categoryTitle").textContent=symbols[cat]+" "+cat+" Documents";$("search").value="";hideNotice();render();}
+async function refresh(){documents=await loadCloudDocs();render();}
+function render(){
+  const list=$("fileList"),q=$("search").value.trim().toLowerCase();
+  $("total").textContent=documents.length;
+  ["Subject","Short Note","Papers"].forEach(cat=>{$("count-"+cat).textContent=documents.filter(d=>d.category===cat).length+" documents";});
+  const filtered=documents.filter(d=>d.category===currentCategory && d.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+  list.replaceChildren();
+  if(!filtered.length){const e=document.createElement("div");e.className="empty";e.textContent=q?"No matching documents.":"📂 No documents in this category yet. Upload karanna.";list.appendChild(e);return;}
+  filtered.forEach(d=>{
+    const row=document.createElement("div");row.className="file";
+    const ext=(d.name.split(".").pop()||"").toLowerCase();
+    const icon=document.createElement("div");icon.className="file-icon";icon.textContent=iconMap[ext]||"📁";
+    const info=document.createElement("div");info.className="file-info";
+    const name=document.createElement("strong");name.textContent=d.name;
+    const meta=document.createElement("small");meta.textContent="☁️ Cloud • "+sizeText(d.size)+" • "+d.date;
+    info.append(name,meta);
+    const actions=document.createElement("div");actions.className="actions";
+    const view=document.createElement("button");view.className="action";view.textContent="👁 View";
+    view.addEventListener("click",()=>{window.open(d.cloudUrl,'_blank');});
+    const down=document.createElement("button");down.className="action";down.textContent="⬇ Download";
+    down.addEventListener("click",()=>{const a=document.createElement("a");a.href=d.cloudUrl;a.download=d.name;a.target="_blank";document.body.appendChild(a);a.click();a.remove();});
+    actions.append(view,down);
+    // Delete button eka admin ta witharak pennanawa - admin unlock karama
+    if(document.getElementById("uploadBtn").classList.contains("show")){
+      const del=document.createElement("button");del.className="action delete";del.textContent="✕ Delete";
+      del.addEventListener("click",async()=>{if(!confirm("Delete "+d.name+"?"))return;await deleteFromGitHub(d);});
+      actions.append(del);
+    }
+    row.append(icon,info,actions);list.appendChild(row);
+  });
+}
+function chooseCategory(cat){
+  currentCategory=cat;
+  document.querySelectorAll("[data-cat]").forEach(el=>{el.classList.toggle("active",el.dataset.cat===cat);if(el.classList.contains("category"))el.classList.toggle("selected",el.dataset.cat===cat);});
+  const s={"Subject":"📘","Short Note":"📝","Papers":"📄"};
+  $("categoryTitle").textContent=s[cat]+" "+cat+" Documents";$("search").value="";hideNotice();render();
+}
 document.querySelectorAll("[data-cat]").forEach(el=>el.addEventListener("click",()=>chooseCategory(el.dataset.cat)));
 $("search").addEventListener("input",render);
 $("uploadBtn").addEventListener("click",()=>$("fileInput").click());
-$("fileInput").addEventListener("change",async event=>{const files=Array.from(event.target.files||[]);event.target.value="";if(!files.length)return;$("uploadBtn").disabled=true;let saved=0,failed=[];for(const file of files){if(file.size>MAX_FILE_SIZE){failed.push(file.name+" (over 100 MB)");continue;}try{await addFile({name:file.name,size:file.size,type:file.type||"application/octet-stream",date:new Date().toLocaleString(),savedAt:Date.now(),category:currentCategory,blob:file});saved++;}catch(error){failed.push(file.name);}} $("uploadBtn").disabled=false;try{await refresh();}catch(error){showNotice(readableError(error),"error");return;}if(failed.length){showNotice("Could not save: "+failed.join("; "),"error");}else{showNotice(saved+" document(s) saved.","success");}});
-(async()=>{try{await openDatabase();await refresh();}catch(error){showNotice("Storage error.","error");}})();
+// --- UPLOAD DIRECTLY TO GITHUB - SO EVERYONE CAN SEE ---
+function fileToBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});}
+async function uploadToGitHub(file,token){
+  const folder=currentCategory;
+  const cleanName=file.name.replace(/[^\w.\- ]/g,"").trim();
+  const path=folder+"/"+cleanName;
+  const content=await fileToBase64(file);
+  const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${encodeURIComponent(path).replace(/%2F/g,"/")}`;
+  const res=await fetch(url,{method:"PUT",headers:{"Authorization":"token "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"Upload "+cleanName,content:content,branch:BRANCH})});
+  if(!res.ok){const e=await res.json();throw new Error(e.message||"Upload failed");}
+  return true;
+}
+async function deleteFromGitHub(d){
+  let token=getToken();if(!token)token=askToken();if(!token)return;
+  if(!d.path){showNotice("Me file eka GitHub eken delete karanna ba. documents.json eken ain karanna.","error");return;}
+  try{
+    const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${encodeURIComponent(d.path).replace(/%2F/g,"/")}`;
+    const getR=await fetch(url,{headers:{"Authorization":"token "+token}});
+    const getJ=await getR.json();
+    const delR=await fetch(url,{method:"DELETE",headers:{"Authorization":"token "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"Delete "+d.name,sha:getJ.sha,branch:BRANCH})});
+    if(!delR.ok)throw new Error("Delete failed");
+    showNotice("Deleted!","success");await refresh();
+  }catch(e){showNotice(e.message,"error");}
+}
+$("fileInput").addEventListener("change",async event=>{
+  const files=Array.from(event.target.files||[]);event.target.value="";if(!files.length)return;
+  let token=getToken();if(!token)token=askToken();if(!token){showNotice("Token eka nathuwa upload karanna ba. GitHub token eka ganna.","error");return;}
+  $("uploadBtn").disabled=true;showNotice("Uploading to Cloud... Thawa tikak inna...","info");
+  let ok=0,fail=[];
+  for(const file of files){
+    try{await uploadToGitHub(file,token);ok++;}
+    catch(e){fail.push(file.name+" - "+e.message);if(e.message.toLowerCase().includes("bad credentials")){localStorage.removeItem("gh_token");fail.push("Token eka waradi! Ayeth token eka ganna.");break;}}
+  }
+  $("uploadBtn").disabled=false;
+  if(fail.length)showNotice("Fail: "+fail.join("; "),"error");
+  else showNotice(ok+" file(s) uploaded! Dan anith ayata okkoma pennanawa!","success");
+  await refresh();
+});
+refresh();
 </script>
 <canvas id="rainCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:999;"></canvas>
 <script>
@@ -172,9 +270,9 @@ document.getElementById("adminBtn").addEventListener("click",()=>{
   const p=prompt("Admin Password:");
   if(p===ADMIN_PASSWORD){
     document.getElementById("uploadBtn").classList.add("show");
-    alert("Admin unlocked!");
+    alert("Admin unlocked! Dan upload karanna puluwan!");
   } else if(p!==null){ alert("Wrong password!"); }
 });
 </script>
 </body>
-</html>
+        </html>
