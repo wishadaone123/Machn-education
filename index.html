@@ -19,8 +19,8 @@ input,select{padding:10px;border-radius:8px;border:0;width:100%;margin:5px 0;bac
 #adminBox{display:none;background:#1e1e3a;padding:15px;border-radius:12px;margin-top:15px;position:relative;z-index:2}
 #viewer{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.9); z-index:99; padding:10px; }
 #viewer iframe{ width:100%; height:90%; border:0; border-radius:10px; background:#fff; }
-/* WAHINA EFFECT - FIX KARA - PODDA / SLOW / LASSANA */
-.rain{ position:fixed; top:-30px; width:1px; height:35px; background:linear-gradient(transparent, rgba(165,216,255,0.25)); opacity:.25; z-index:0; pointer-events:none; animation: fall linear infinite; }
+/* WAHINA FIX 2 - DAN IRI NA, SOFT BINDU WAGE */
+.rain{ position:fixed; top:-10px; width:1px; height:12px; background:rgba(180,220,255,0.18); opacity:.18; z-index:0; pointer-events:none; filter:blur(0.5px); border-radius:10px; animation: fall linear infinite; }
 @keyframes fall{ to{ transform: translateY(110vh); } }
 .contact{ margin-top:30px; position:relative; z-index:2; }
 .contact a{ display:inline-flex; align-items:center; justify-content:center; width:55px; height:55px; border-radius:50%; margin-right:10px; text-decoration:none; }
@@ -73,15 +73,15 @@ input,select{padding:10px;border-radius:8px;border:0;width:100%;margin:5px 0;bac
 <iframe id="viewFrame" src=""></iframe>
 </div>
 <script>
-// WAHINA FIX - DAN PODDA, SLOW
+// WAHINA FIX - DAN PODDA SOFT
 let rainBox=document.getElementById("rainBox");
-for(let i=0;i<22;i++){
+for(let i=0;i<15;i++){ // kalin 22, dan 15 witharai
   let d=document.createElement("div");
   d.className="rain";
   d.style.left=Math.random()*100+"vw";
-  d.style.animationDuration=(1.8+Math.random()*1.5)+"s";
-  d.style.animationDelay=Math.random()*3+"s";
-  d.style.opacity=0.08+Math.random()*0.15;
+  d.style.animationDuration=(3.5+Math.random()*2)+"s"; // dan godak slow
+  d.style.animationDelay=Math.random()*4+"s";
+  d.style.opacity=0.05+Math.random()*0.1; // dan godak podda
   rainBox.appendChild(d);
 }
 const USER="wishadaone123", REPO="Machn-education";
@@ -119,4 +119,4 @@ async function delFile(path,sha,name){
 }
 </script>
 </body>
-</html>
+  </html>
