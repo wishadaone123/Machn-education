@@ -19,27 +19,16 @@ input,select{padding:10px;border-radius:8px;border:0;width:100%;margin:5px 0;bac
 #adminBox{display:none;background:#1e1e3a;padding:15px;border-radius:12px;margin-top:15px;position:relative;z-index:2}
 #viewer{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.9); z-index:99; padding:10px; }
 #viewer iframe{ width:100%; height:90%; border:0; border-radius:10px; background:#fff; }
+.rain{ position:fixed; top:-20px; width:2px; height:80px; background:linear-gradient(transparent, #a5d8ff); opacity:.6; z-index:1; pointer-events:none; animation: fall linear infinite; }
+@keyframes fall{ to{ transform: translateY(110vh); } }
+/* CONTACT - SCREENSHOT EKE WIDIYATA */
 .contact{ margin-top:30px; position:relative; z-index:2; }
 .contact a{ display:inline-flex; align-items:center; justify-content:center; width:55px; height:55px; border-radius:50%; margin-right:10px; text-decoration:none; }
 .contact a img{ width:32px; height:32px; }
-/* ADMIN LOCK BUTTON */
-.admin-btn{ position:fixed; bottom:15px; right:15px; z-index:100; width:45px; height:45px; border-radius:50%; background:#2a2a4a; font-size:18px; padding:0; }
-@keyframes glowMove1{ from{ transform: translate(0,0) scale(1); } to{ transform: translate(80px, 60px) scale(1.2); } }
-@keyframes glowMove2{ from{ transform: translate(0,0) scale(1.1); } to{ transform: translate(-90px, -70px) scale(0.9); } }
 </style>
 </head>
 <body>
-
-<!-- GLOW EFFECT - 1 PARAI -->
-<div style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden;">
-  <div style="position:absolute; width:450px; height:450px; background:radial-gradient(circle, rgba(128,87,245,0.45), transparent 70%); filter:blur(60px); top:-100px; left:-100px; animation: glowMove1 9s ease-in-out infinite alternate;"></div>
-  <div style="position:absolute; width:400px; height:400px; background:radial-gradient(circle, rgba(0,200,255,0.35), transparent 70%); filter:blur(60px); bottom:-100px; right:-50px; animation: glowMove2 11s ease-in-out infinite alternate;"></div>
-  <div style="position:absolute; width:300px; height:300px; background:radial-gradient(circle, rgba(255,0,150,0.25), transparent 70%); filter:blur(60px); top:40%; left:50%; animation: glowMove1 13s ease-in-out infinite alternate;"></div>
-</div>
-
-<!-- WAHI EFFECT - DAN EKA WITARAI, 60 BINDU -->
-<canvas id="rainCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1;"></canvas>
-
+<div id="rainBox"></div>
 <div class="top"><h2>Education Dashboard</h2><span class="badge">☁️ Everyone can see</span></div>
 <div class="header"><h2>Welcome To Tharu Education 👋</h2><p>All documents here are visible to everyone. View and download any file.</p></div>
 <div class="stats">
@@ -68,62 +57,34 @@ input,select{padding:10px;border-radius:8px;border:0;width:100%;margin:5px 0;bac
 </div>
 <p id="errBox" style="display:none;background:#4a1a2a;padding:12px;border-radius:10px;color:#ffb3b3"></p>
 <div id="list"><p style="text-align:center;padding:20px">Loading...</p></div>
+
+<!-- CONTACT ME - OYA KIYAPU WIDIYATA MA -->
 <div class="contact">
 <h2>Contact Me</h2>
+<!-- WhatsApp - Click karama oya msg eka ma enawa -->
 <a href="https://wa.me/94776399895?text=Hyy%20Tharusha%F0%9F%91%8B%F0%9F%91%8B%20I%20came%20from%20your%20website%20%F0%9F%A4%8D" target="_blank" style="background:#25D366">
 <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
 </a>
+<!-- Facebook - Oya link eka -->
 <a href="https://www.facebook.com/share/1BfSx7ALrx/" target="_blank" style="background:#1877F2">
 <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" alt="Facebook" style="width:28px;height:28px;">
 </a>
 <p style="color:#aaa">Thank you for using! 🤍</p>
 <p style="text-align:center;color:#555;font-size:12px">© 2026 Machn Education</p>
 </div>
+
 <div id="viewer">
 <button onclick="closeViewer()" style="background:#ff4757;margin-bottom:10px">✖ Close View</button>
 <iframe id="viewFrame" src=""></iframe>
 </div>
 
-<button class="admin-btn" id="adminBtn">🔒</button>
-
 <script>
-// WAHI - FIX KARA - DAN 60 WITARAI, SOFT
-const canvas = document.getElementById('rainCanvas');
-const ctx = canvas.getContext('2d');
-let drops = [];
-function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.addEventListener('resize', resize); resize();
-for(let i=0; i<60; i++){
-  drops.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, len: 12 + Math.random()*12, speed: 4 + Math.random()*4, opacity: 0.08 + Math.random()*0.15 });
-}
-function rain(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.lineWidth = 1; ctx.lineCap = 'round';
-  drops.forEach(d => {
-    ctx.strokeStyle = `rgba(174,194,224,${d.opacity})`;
-    ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - 2, d.y + d.len); ctx.stroke();
-    d.y += d.speed; d.x -= 0.5;
-    if(d.y > canvas.height){ d.y = -20; d.x = Math.random()*canvas.width; }
-  });
-  requestAnimationFrame(rain);
-}
-rain();
-
-// ADMIN LOCK - FIX KARA
-const ADMIN_PASSWORD="tharu123";
-document.getElementById("adminBtn").addEventListener("click",()=>{
-  const p=prompt("Admin Password:");
-  if(p===ADMIN_PASSWORD){
-    isAdmin=true;
-    document.getElementById("adminBox").style.display="block";
-    alert("Admin unlocked! ✅ Dan Upload karanna puluwan");
-  } else if(p!==null){ alert("Wrong password!"); }
-});
-
+let rainBox=document.getElementById("rainBox");
+for(let i=0;i<70;i++){ let d=document.createElement("div"); d.className="rain"; d.style.left=Math.random()*100+"vw"; d.style.animationDuration=(0.5+Math.random()*0.7)+"s"; d.style.animationDelay=Math.random()*2+"s"; d.style.opacity=0.2+Math.random()*0.5; rainBox.appendChild(d); }
 const USER="wishadaone123", REPO="Machn-education";
 let allFiles=[], currentCat="Papers", isAdmin=false;
 if(location.search.includes("admin=1")){ isAdmin=true; document.getElementById("adminBox").style.display="block"; let t=localStorage.getItem("gh_token"); if(!t){ t=prompt("Admin Token eka danna:"); if(t) localStorage.setItem("gh_token",t); } }
-function showUpload(){ if(!isAdmin){ alert("Admin witharai! 🔒 Button eka click karala password danna"); return; } document.getElementById("adminBox").style.display="block"; }
+function showUpload(){ if(!isAdmin){ alert("Admin witharai! Link eke agata ?admin=1 danna"); return; } document.getElementById("adminBox").style.display="block"; }
 function changeToken(){ let t=prompt("Aluth Token eka danna:"); if(t){ localStorage.setItem("gh_token",t); alert("Token maru kala!"); } }
 function setCat(c){ currentCat=c; document.querySelectorAll(".cat").forEach(e=>e.classList.remove("active")); document.getElementById("cat-"+c).classList.add("active"); document.getElementById("catTitle").innerText=(c=="Papers"?"📄 ":c=="Subject"?"📘 ":"📝 ")+c+" Documents"; render(); }
 function openView(url){ document.getElementById("viewFrame").src=url; document.getElementById("viewer").style.display="block"; }
