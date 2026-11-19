@@ -93,7 +93,7 @@ button,input{font:inherit}button{cursor:pointer}
 "use strict";
 const GITHUB_USER="wishadaone123";
 const GITHUB_REPO="Machn-education";
-const BRANCH="main";
+let BRANCH="main";
 let documents=[], currentCategory="Subject", isAdmin=false;
 const iconMap={pdf:"📕",doc:"📘",docx:"📘",ppt:"📙",pptx:"📙",jpg:"🖼️",jpeg:"🖼️",png:"🖼️"};
 const $=id=>document.getElementById(id);
@@ -119,8 +119,22 @@ function askToken(){
   if(t){t=t.trim();localStorage.setItem("gh_token",t);return t;}
   return "";
 }
-// --- LOAD ONLY FROM GITHUB - documents.json AIN KALA, Maths magula na ---
+// --- AUTO DETECT BRANCH - main da master da kiyala ---
+async function detectBranch(){
+  try{
+    const r=await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}`);
+    if(r.ok){const j=await r.json();if(j.default_branch){BRANCH=j.default_branch;return BRANCH;}}
+  }catch(e){}
+  for(const b of ["main","master"]){
+    try{
+      const r=await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/${b}?recursive=1`);
+      if(r.ok){BRANCH=b;return b;}
+    }catch(e){}
+  }
+  return BRANCH;
+}
 async function loadCloudDocs(){
+  await detectBranch();
   let out=[];
   try{
     const r=await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/${BRANCH}?recursive=1`);
@@ -135,7 +149,7 @@ async function loadCloudDocs(){
         const folder=file.path.includes("/")?file.path.split("/").slice(0,-1).join("/"): "";
         const cat=folder?folderToCategory(folder):null;
         const finalCat=cat||guessCategory(name,file.path);
-        const url=`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/${encodeURIComponent(file.path).replace(/%2F/g,"/")}`;
+        const url=`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/${file.path.split("/").map(s=>encodeURIComponent(s)).join("/")}`;
         if(out.some(o=>o.cloudUrl===url))return;
         out.push({id:'gh-'+file.path,name:name,category:finalCat,size:file.size||0,date:"GitHub • "+file.path,savedAt:Date.now(),cloudUrl:url,path:file.path,sha:file.sha});
       });
@@ -165,7 +179,6 @@ function render(){
     const down=document.createElement("button");down.className="action";down.textContent="⬇ Download";
     down.addEventListener("click",()=>{const a=document.createElement("a");a.href=d.cloudUrl;a.download=d.name;a.target="_blank";document.body.appendChild(a);a.click();a.remove();});
     actions.append(view,down);
-    // DELETE - OYATA WITHARAI! isAdmin true unamath witharai pennanne
     if(isAdmin){
       const del=document.createElement("button");del.className="action delete";del.textContent="✕ Delete";
       del.addEventListener("click",async()=>{if(!confirm("Delete "+d.name+"?"))return;await deleteFromGitHub(d);});
@@ -185,20 +198,21 @@ $("search").addEventListener("input",render);
 $("uploadBtn").addEventListener("click",()=>$("fileInput").click());
 function fileToBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});}
 async function uploadToGitHub(file,token){
+  await detectBranch();
   const folder=currentCategory;
   const cleanName=file.name.replace(/[^\w.\- ]/g,"").trim();
   const path=folder+"/"+cleanName;
   const content=await fileToBase64(file);
-  const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${encodeURIComponent(path).replace(/%2F/g,"/")}`;
+  const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path.split("/").map(s=>encodeURIComponent(s)).join("/")}`;
   const res=await fetch(url,{method:"PUT",headers:{"Authorization":"token "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"Upload "+cleanName,content:content,branch:BRANCH})});
-  if(!res.ok){const e=await res.json();throw new Error(e.message||"Upload failed");}
+  if(!res.ok){const e=await res.json();throw new Error(e.message||"Upload failed - "+res.status);}
   return true;
 }
 async function deleteFromGitHub(d){
   let token=getToken();if(!token)token=askToken();if(!token)return;
-  if(!d.path){showNotice("Delete karanna ba.","error");return;}
+  await detectBranch();
   try{
-    const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${encodeURIComponent(d.path).replace(/%2F/g,"/")}`;
+    const url=`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${d.path.split("/").map(s=>encodeURIComponent(s)).join("/")}`;
     const getR=await fetch(url,{headers:{"Authorization":"token "+token}});
     const getJ=await getR.json();
     const delR=await fetch(url,{method:"DELETE",headers:{"Authorization":"token "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"Delete "+d.name,sha:getJ.sha,branch:BRANCH})});
@@ -255,4 +269,4 @@ document.getElementById("adminBtn").addEventListener("click",()=>{
 });
 </script>
 </body>
-  </html>
+</html>
