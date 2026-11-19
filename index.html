@@ -5,23 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tharu Education</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#0f0f2a;color:#fff;padding:15px}
-.top{display:flex;justify-content:space-between;align-items:center}
+*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#0f0f2a;color:#fff;padding:15px;overflow-x:hidden}
+.top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
 .badge{background:#2a2a4a;padding:6px 12px;border-radius:20px;font-size:12px}
-.header{background:linear-gradient(90deg,#7b2ff7,#9b5cff);padding:20px;border-radius:15px;margin:15px 0}
+.header{background:linear-gradient(90deg,#7b2ff7,#9b5cff);padding:20px;border-radius:15px;margin:15px 0;position:relative;z-index:2}
 .header h2{margin:0;font-size:24px}
-.stats{display:flex;gap:10px}.stat{background:#1e1e3a;padding:15px;border-radius:12px;flex:1}.stat small{color:#aaa}.stat b{font-size:24px}
-.cats{display:flex;gap:10px;margin:15px 0}.cat{background:#1e1e3a;padding:15px;border-radius:12px;flex:1;cursor:pointer;border:2px solid transparent}.cat.active{border-color:#a06bff}.cat small{color:#aaa}
-.card{background:#1e1e3a;padding:15px;border-radius:12px;margin:10px 0;display:flex;justify-content:space-between;align-items:center}
+.stats{display:flex;gap:10px;position:relative;z-index:2}.stat{background:#1e1e3a;padding:15px;border-radius:12px;flex:1}.stat small{color:#aaa}.stat b{font-size:24px}
+.cats{display:flex;gap:10px;margin:15px 0;position:relative;z-index:2}.cat{background:#1e1e3a;padding:15px;border-radius:12px;flex:1;cursor:pointer;border:2px solid transparent}.cat.active{border-color:#a06bff}.cat small{color:#aaa}
+.card{background:#1e1e3a;padding:15px;border-radius:12px;margin:10px 0;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
 button{background:#7b2ff7;color:#fff;border:0;padding:10px 15px;border-radius:8px;font-weight:bold;cursor:pointer}
 input,select{padding:10px;border-radius:8px;border:0;width:100%;margin:5px 0;background:#2a2a4a;color:#fff}
-.searchRow{display:flex;gap:10px}.searchRow input{flex:1}
-#adminBox{display:none;background:#1e1e3a;padding:15px;border-radius:12px;margin-top:15px}
+.searchRow{display:flex;gap:10px;position:relative;z-index:2}.searchRow input{flex:1}
+#adminBox{display:none;background:#1e1e3a;padding:15px;border-radius:12px;margin-top:15px;position:relative;z-index:2}
 #viewer{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.9); z-index:99; padding:10px; }
 #viewer iframe{ width:100%; height:90%; border:0; border-radius:10px; background:#fff; }
+.rain{ position:fixed; top:-20px; width:2px; height:80px; background:linear-gradient(transparent, #a5d8ff); opacity:.6; z-index:1; pointer-events:none; animation: fall linear infinite; }
+@keyframes fall{ to{ transform: translateY(110vh); } }
+/* CONTACT - SCREENSHOT EKE WIDIYATA */
+.contact{ margin-top:30px; position:relative; z-index:2; }
+.contact a{ display:inline-flex; align-items:center; justify-content:center; width:55px; height:55px; border-radius:50%; margin-right:10px; text-decoration:none; }
+.contact a img{ width:32px; height:32px; }
 </style>
 </head>
 <body>
+<div id="rainBox"></div>
 <div class="top"><h2>Education Dashboard</h2><span class="badge">☁️ Everyone can see</span></div>
 <div class="header"><h2>Welcome To Tharu Education 👋</h2><p>All documents here are visible to everyone. View and download any file.</p></div>
 <div class="stats">
@@ -50,80 +57,60 @@ input,select{padding:10px;border-radius:8px;border:0;width:100%;margin:5px 0;bac
 </div>
 <p id="errBox" style="display:none;background:#4a1a2a;padding:12px;border-radius:10px;color:#ffb3b3"></p>
 <div id="list"><p style="text-align:center;padding:20px">Loading...</p></div>
-<div style="margin-top:30px"><h2>Contact Me</h2><p style="color:#aaa">Thank you for using! 🤍</p><p style="text-align:center;color:#555;font-size:12px">© 2026 Machn Education</p></div>
 
-<!-- VIEWER - OYATA + ANITH UNTATH VIEW KARANA THAN A -->
+<!-- CONTACT ME - OYA KIYAPU WIDIYATA MA -->
+<div class="contact">
+<h2>Contact Me</h2>
+<!-- WhatsApp - Click karama oya msg eka ma enawa -->
+<a href="https://wa.me/94776399895?text=Hyy%20Tharusha%F0%9F%91%8B%F0%9F%91%8B%20I%20came%20from%20your%20website%20%F0%9F%A4%8D" target="_blank" style="background:#25D366">
+<img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+</a>
+<!-- Facebook - Oya link eka -->
+<a href="https://www.facebook.com/share/1BfSx7ALrx/" target="_blank" style="background:#1877F2">
+<img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" alt="Facebook" style="width:28px;height:28px;">
+</a>
+<p style="color:#aaa">Thank you for using! 🤍</p>
+<p style="text-align:center;color:#555;font-size:12px">© 2026 Machn Education</p>
+</div>
+
 <div id="viewer">
 <button onclick="closeViewer()" style="background:#ff4757;margin-bottom:10px">✖ Close View</button>
 <iframe id="viewFrame" src=""></iframe>
 </div>
 
 <script>
+let rainBox=document.getElementById("rainBox");
+for(let i=0;i<70;i++){ let d=document.createElement("div"); d.className="rain"; d.style.left=Math.random()*100+"vw"; d.style.animationDuration=(0.5+Math.random()*0.7)+"s"; d.style.animationDelay=Math.random()*2+"s"; d.style.opacity=0.2+Math.random()*0.5; rainBox.appendChild(d); }
 const USER="wishadaone123", REPO="Machn-education";
 let allFiles=[], currentCat="Papers", isAdmin=false;
-if(location.search.includes("admin=1")){
-  isAdmin=true;
-  document.getElementById("adminBox").style.display="block";
-  let t=localStorage.getItem("gh_token");
-  if(!t){ t=prompt("Admin Token eka danna:"); if(t) localStorage.setItem("gh_token",t); }
-}
+if(location.search.includes("admin=1")){ isAdmin=true; document.getElementById("adminBox").style.display="block"; let t=localStorage.getItem("gh_token"); if(!t){ t=prompt("Admin Token eka danna:"); if(t) localStorage.setItem("gh_token",t); } }
 function showUpload(){ if(!isAdmin){ alert("Admin witharai! Link eke agata ?admin=1 danna"); return; } document.getElementById("adminBox").style.display="block"; }
 function changeToken(){ let t=prompt("Aluth Token eka danna:"); if(t){ localStorage.setItem("gh_token",t); alert("Token maru kala!"); } }
 function setCat(c){ currentCat=c; document.querySelectorAll(".cat").forEach(e=>e.classList.remove("active")); document.getElementById("cat-"+c).classList.add("active"); document.getElementById("catTitle").innerText=(c=="Papers"?"📄 ":c=="Subject"?"📘 ":"📝 ")+c+" Documents"; render(); }
-
-// VIEW - OYATA + ANITH UNTATH WADA
-function openView(url){
-  document.getElementById("viewFrame").src = url;
-  document.getElementById("viewer").style.display="block";
-}
+function openView(url){ document.getElementById("viewFrame").src=url; document.getElementById("viewer").style.display="block"; }
 function closeViewer(){ document.getElementById("viewer").style.display="none"; document.getElementById("viewFrame").src=""; }
-
 async function load(){
-  try{
-    allFiles=[];
-    for(let folder of ["Papers","Subject","Short Note"]){
-      const r=await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(folder)}?t=${Date.now()}`);
-      if(!r.ok) continue;
-      const files=await r.json();
-      if(Array.isArray(files)){ files.filter(f=>f.name.toLowerCase().endsWith(".pdf")).forEach(f=>{ allFiles.push({name:f.name,cat:folder,download_url:f.download_url,sha:f.sha,path:f.path}); }); }
-    }
+  try{ allFiles=[]; for(let folder of ["Papers","Subject","Short Note"]){ const r=await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(folder)}?t=${Date.now()}`); if(!r.ok) continue; const files=await r.json(); if(Array.isArray(files)){ files.filter(f=>f.name.toLowerCase().endsWith(".pdf")).forEach(f=>{ allFiles.push({name:f.name,cat:folder,download_url:f.download_url,sha:f.sha,path:f.path}); }); } }
     document.getElementById("totalCount").innerText=allFiles.length;
-    for(let c of ["Subject","Short Note","Papers"]){ document.getElementById("c-"+c).innerText=allFiles.filter(f=>f.cat==c).length+" documents"; }
-    render();
-  }catch(e){ document.getElementById("list").innerHTML="<p>Loading failed.</p>"; }
+    for(let c of ["Subject","Short Note","Papers"]){ document.getElementById("c-"+c).innerText=allFiles.filter(f=>f.cat==c).length+" documents"; } render(); }catch(e){ document.getElementById("list").innerHTML="<p>Loading failed.</p>"; }
 }
 function render(){
   let q=document.getElementById("search").value.toLowerCase();
   let list=allFiles.filter(f=>f.cat==currentCat && f.name.toLowerCase().includes(q));
   if(list.length==0){ document.getElementById("list").innerHTML=`<div style="text-align:center;padding:30px;border:1px dashed #444;border-radius:12px">📂 No documents in this category yet.</div>`; return; }
-  document.getElementById("list").innerHTML=list.map(f=>{
-    // VIEW + DOWNLOAD HAMOTAMA - OYATA TH OYATA TH, ANITH UNTATH
-    // DELETE OYATA WITHARAI
-    let del=isAdmin?`<button onclick="delFile('${f.path}','${f.sha}','${f.name}')" style="background:#ff4757">Delete</button>`:"";
-    return `<div class="card"><div><b>${f.name}</b><br><small>${f.cat}</small></div><div><button onclick="openView('${f.download_url}')">View</button> <a href="${f.download_url}" target="_blank"><button style="background:#00b894">Download</button></a> ${del}</div></div>`;
-  }).join("");
+  document.getElementById("list").innerHTML=list.map(f=>{ let del=isAdmin?`<button onclick="delFile('${f.path}','${f.sha}','${f.name}')" style="background:#ff4757">Delete</button>`:""; return `<div class="card"><div><b>${f.name}</b><br><small>${f.cat}</small></div><div><button onclick="openView('${f.download_url}')">View</button> <a href="${f.download_url}" target="_blank"><button style="background:#00b894">Download</button></a> ${del}</div></div>`; }).join("");
 }
 load();
 async function upload(){
-  const file=document.getElementById("fileInput").files[0];
-  const cat=document.getElementById("catSel").value;
-  const token=localStorage.getItem("gh_token");
-  if(!file) return alert("PDF ekak select karanna");
-  if(!token) return alert("Token na!");
-  document.getElementById("status").innerText="Uploading... ⏳";
-  const fileName=file.name.replace(/ /g,"_");
+  const file=document.getElementById("fileInput").files[0]; const cat=document.getElementById("catSel").value; const token=localStorage.getItem("gh_token");
+  if(!file) return alert("PDF ekak select karanna"); if(!token) return alert("Token na!");
+  document.getElementById("status").innerText="Uploading... ⏳"; const fileName=file.name.replace(/ /g,"_");
   const reader=new FileReader();
-  reader.onload=async()=>{
-    const base64=reader.result.split(",")[1];
-    const res=await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(cat)}/${encodeURIComponent(fileName)}`,{method:"PUT",headers:{Authorization:"token "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"upload "+fileName,content:base64})});
-    if(res.ok){ document.getElementById("status").innerText="✅ Uploaded!"; setTimeout(load,2000); }
-    else{ document.getElementById("status").innerText="❌ Failed!"; document.getElementById("errBox").style.display="block"; document.getElementById("errBox").innerText="Fail: "+fileName+" - Token eka waradi / repo tick karala na!"; }
-  };
+  reader.onload=async()=>{ const base64=reader.result.split(",")[1]; const res=await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(cat)}/${encodeURIComponent(fileName)}`,{method:"PUT",headers:{Authorization:"token "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"upload "+fileName,content:base64})}); if(res.ok){ document.getElementById("status").innerText="✅ Uploaded!"; setTimeout(load,2000); } else{ document.getElementById("status").innerText="❌ Failed!"; document.getElementById("errBox").style.display="block"; document.getElementById("errBox").innerText="Fail: "+fileName+" - Token eka waradi!"; } };
   reader.readAsDataURL(file);
 }
 async function delFile(path,sha,name){
-  if(!confirm(name+" delete karanda da?")) return;
-  const token=localStorage.getItem("gh_token");
+  if(!confirm(name+" delete karanda da?")) return; const token=localStorage.getItem("gh_token");
   const res=await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${encodeURIComponent(path)}`,{method:"DELETE",headers:{Authorization:"token "+token,"Content-Type":"application/json"},body:JSON.stringify({message:"delete "+name,sha:sha})});
   if(res.ok){ alert("✅ Deleted!"); load(); } else{ alert("❌ Delete Failed!"); }
 }
